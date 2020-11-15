@@ -1,0 +1,5 @@
+#AWS secrets
+rootkey.csv
+secrets.py
+__pycache__
+audio
