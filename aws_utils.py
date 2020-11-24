@@ -3,7 +3,7 @@ import time
 import boto3
 from botocore.exceptions import NoCredentialsError
 import pandas as pd
-from secrets import ACCESS_KEY, SECRET_KEY
+from secrets import AWS_ACCESS_KEY as ACCESS_KEY, AWS_SECRET_KEY as SECRET_KEY
 
 def upload_to_aws(local_file, bucket, s3_file):
     s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,

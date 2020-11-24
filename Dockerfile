@@ -1,4 +1,4 @@
-FROM python:3.5
+FROM python:latest
 
 RUN apt-get update && \
     apt-get upgrade -y && \
