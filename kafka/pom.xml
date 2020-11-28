@@ -30,6 +30,19 @@
       <artifactId>slf4j-log4j12</artifactId>
       <version>1.7.25</version>
     </dependency>
+      <dependency>
+          <groupId>com.amazonaws</groupId>
+          <artifactId>aws-java-sdk</artifactId>
+          <version>1.11.327</version>
+          <type>pom</type>
+          <scope>import</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.example</groupId>
+          <artifactId>kafka-streaming</artifactId>
+          <version>1.0-SNAPSHOT</version>
+      </dependency>
+
   </dependencies>
   <build>
     <plugins>

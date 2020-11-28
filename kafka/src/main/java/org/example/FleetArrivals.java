@@ -1,7 +1,6 @@
 package org.example;
-import java.net.Authenticator;
-import java.net.InetAddress;
-import java.net.PasswordAuthentication;
+import java.io.*;
+import java.net.*;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,6 +14,11 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,13 +33,13 @@ public class FleetArrivals {
 		Random generator = new Random();
 		// We are just going to get a random sampling of flights from a few airlines
 		// Getting all flights would be much more expensive!
-		String[] airlines = new String[] { "DAL", "AAL", "SWA", "UAL" };
+		String[] airlines = new String[]{"DAL", "AAL", "SWA", "UAL"};
 
 		public FleetArrivedResponse getFleetArrivedResponse() {
 			Invocation.Builder bldr
-			  = client.target("http://flightxml.flightaware.com/json/FlightXML2/FleetArrived?fleet="
-					          + airlines[generator.nextInt(airlines.length)]
-					          + "&howMany=3&offset=0").request("application/json");
+					= client.target("http://flightxml.flightaware.com/json/FlightXML2/FleetArrived?fleet="
+					+ airlines[generator.nextInt(airlines.length)]
+					+ "&howMany=3&offset=0").request("application/json");
 			try {
 				return bldr.get(FleetArrivedResponse.class);
 			} catch (Exception e) {
@@ -45,7 +49,7 @@ public class FleetArrivals {
 		}
 
 		public FlightInfoExResponse getFlightInfoExResponse(String ident, int departureTime) {
-			String uri= String.format("http://flightxml.flightaware.com/json/FlightXML2/FlightInfoEx?ident=%s@%d&howMany=1&offset=0", ident, departureTime);
+			String uri = String.format("http://flightxml.flightaware.com/json/FlightXML2/FlightInfoEx?ident=%s@%d&howMany=1&offset=0", ident, departureTime);
 			Invocation.Builder bldr = client.target(uri).request("application/json");
 			return bldr.get(FlightInfoExResponse.class);
 
@@ -53,14 +57,16 @@ public class FleetArrivals {
 
 		// Adapted from http://hortonworks.com/hadoop-tutorial/simulating-transporting-realtime-events-stream-apache-kafka/
 		Properties props = new Properties();
-		String TOPIC = "flights";
+		String TOPIC = "dasnes-scanner-audio-uri";
 		KafkaProducer<String, String> producer;
-		
+		ProcessBuilder processBuilder = new ProcessBuilder();
+
+
 		public Task() {
 			client = ClientBuilder.newClient();
 			// enable POJO mapping using Jackson - see
 			// https://jersey.java.net/documentation/latest/user-guide.html#json.jackson
-			client.register(JacksonFeature.class); 
+			client.register(JacksonFeature.class);
 			props.put("bootstrap.servers", bootstrapServers);
 			props.put("acks", "all");
 			props.put("retries", 0);
@@ -75,6 +81,30 @@ public class FleetArrivals {
 
 		@Override
 		public void run() {
+			//this attempt inspired by: https://stackoverflow.com/questions/46073200/record-file-audio-from-url-using-java
+			try {
+
+				Secrets secrets = new Secrets();
+				String username = secrets.getUn();
+				String password = secrets.getPw();
+
+				long t = System.currentTimeMillis();
+				String filename = String.format("/home/hadoop/dasnes/kafka/target/testFile1.mp3", t);
+				processBuilder.command("bash", "-c", "wget --http-user=" + username + " --http-password=" + password + " https://audio.broadcastify.com/27730.mp3 > " + filename);
+				Process process = processBuilder.start();
+
+				while (System.currentTimeMillis() - t <= 20 * 1000) {
+					//do nothing
+				}
+				//then kill the process and upload the file to S3
+				process.destroy();
+
+				producer.send(new ProducerRecord<String, String>(TOPIC, "hello world from dallon"));
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			/*
 			FleetArrivedResponse response = getFleetArrivedResponse();
 			if(response == null || response.getFleetArrivedResult() == null)
 				return;
@@ -97,41 +127,21 @@ public class FleetArrivals {
 				} catch (JsonProcessingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
-			}
+				}*/
 		}
-
 	}
-	public static class CustomAuthenticator extends Authenticator {
 
-		// Called when password authorization is needed
-		protected PasswordAuthentication getPasswordAuthentication() {
 
-			// Get information about the request
-			String prompt = getRequestingPrompt();
-			String hostname = getRequestingHost();
-			InetAddress ipaddr = getRequestingSite();
-			int port = getRequestingPort();
 
-			Secrets secrets = new Secrets();
-			String username = secrets.getUn();
-			String password = secrets.getPw();
 
-			// Return the information (a data holder that is used by Authenticator)
-			return new PasswordAuthentication(username, password.toCharArray());
-
-		}
-
-	}
 
 	static String bootstrapServers = new String("localhost:9092");
 
 	public static void main(String[] args) {
 		if(args.length > 0)  // This lets us run on the cluster with a different kafka
 			bootstrapServers = args[0];
-		Authenticator.setDefault(new CustomAuthenticator());
 		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(new Task(), 0, 60*1000);
+		timer.scheduleAtFixedRate(new Task(), 0, 20*1000);
 	}
 }
 
