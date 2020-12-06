@@ -98,6 +98,8 @@ select * from dasnes_test_csv_orc;
 /*
 
 NEXT TODO:
+//to expose port 8070 from hbase connection:
+ssh -i dasnes -L 8070:ec2-52-15-169-10.us-east-2.compute.amazonaws.com:8070 hadoop@ec2-52-15-169-10.us-east-2.compute.amazonaws.com
 web client should take in a zone and display all rows + timestamps for that row
 */
 
