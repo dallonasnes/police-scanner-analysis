@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3d5f0979-71e3-4e7f-ba22-efc7e8a34aff" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../../aws_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../aws_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../kafka/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../kafka/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../kafka/src/main/java/org/example/FleetArrivals.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../kafka/src/main/java/org/example/FleetArrivals.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../testing/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../testing/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../testing/src/main/java/Testing.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../testing/src/main/java/Testing.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../testing/testing.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../../testing/testing.iml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeStyleSettingsInfer">
+    <option name="done" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="$APPLICATION_HOME_DIR$/plugins/maven/lib/maven3" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="delegateBuildToMaven" value="true" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="1" />
+  </component>
+  <component name="ProjectId" id="1k8MiaIBnOr3bvUkfhhae4HgY3Y" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+  </component>
+  <component name="RunManager">
+    <configuration name="app.js" type="NodeJSConfigurationType" application-parameters="3000 localhost 8070" nameIsGenerated="true" path-to-js-file="app.js" working-dir="$PROJECT_DIR$">
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3d5f0979-71e3-4e7f-ba22-efc7e8a34aff" name="Default Changelist" comment="" />
+      <created>1605077895388</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1605077895388</updated>
+      <workItem from="1605077897838" duration="405000" />
+      <workItem from="1605159469603" duration="1032000" />
+      <workItem from="1607228238803" duration="297000" />
+      <workItem from="1607228755268" duration="1034000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="608" y="313" width="794" height="514" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1607228844664">
+      <screen x="0" y="23" width="1440" height="804" />
+    </state>
+    <state x="-1479" y="740" width="1071" height="700" key="#com.intellij.execution.impl.EditConfigurationsDialog/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605159872912" />
+    <state x="608" y="313" width="794" height="514" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1440.804@0.23.1440.804" timestamp="1607228844664" />
+    <state width="1398" height="246" key="GridCell.Tab.0.bottom" timestamp="1607229697524">
+      <screen x="0" y="23" width="1440" height="804" />
+    </state>
+    <state width="1697" height="367" key="GridCell.Tab.0.bottom/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605160646074" />
+    <state width="1398" height="246" key="GridCell.Tab.0.bottom/0.23.1440.804@0.23.1440.804" timestamp="1607229697524" />
+    <state width="1398" height="246" key="GridCell.Tab.0.center" timestamp="1607229697522">
+      <screen x="0" y="23" width="1440" height="804" />
+    </state>
+    <state width="1697" height="367" key="GridCell.Tab.0.center/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605160646073" />
+    <state width="1398" height="246" key="GridCell.Tab.0.center/0.23.1440.804@0.23.1440.804" timestamp="1607229697522" />
+    <state width="1398" height="246" key="GridCell.Tab.0.left" timestamp="1607229697521">
+      <screen x="0" y="23" width="1440" height="804" />
+    </state>
+    <state width="1697" height="367" key="GridCell.Tab.0.left/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605160646072" />
+    <state width="1398" height="246" key="GridCell.Tab.0.left/0.23.1440.804@0.23.1440.804" timestamp="1607229697521" />
+    <state width="1398" height="246" key="GridCell.Tab.0.right" timestamp="1607229697523">
+      <screen x="0" y="23" width="1440" height="804" />
+    </state>
+    <state width="1697" height="367" key="GridCell.Tab.0.right/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605160646074" />
+    <state width="1398" height="246" key="GridCell.Tab.0.right/0.23.1440.804@0.23.1440.804" timestamp="1607229697523" />
+    <state x="221" y="64" key="SettingsEditor" timestamp="1607228766043">
+      <screen x="0" y="23" width="1440" height="804" />
+    </state>
+    <state x="221" y="64" key="SettingsEditor/0.23.1440.804@0.23.1440.804" timestamp="1607228766043" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/app.js</url>
+          <line>86</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

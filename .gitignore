@@ -1,3 +1,8 @@
+#submodules
+pyAudioAnalysis/
+
+#node stuff
+web_app/src/node_modules/
 #AWS secrets
 rootkey.csv
 secrets.py

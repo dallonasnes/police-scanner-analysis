@@ -17,6 +17,7 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -84,12 +85,19 @@ public class FleetArrivals {
 			//this attempt inspired by: https://stackoverflow.com/questions/46073200/record-file-audio-from-url-using-java
 			try {
 
+
 				Secrets secrets = new Secrets();
 				String username = secrets.getUn();
 				String password = secrets.getPw();
 
 				long t = System.currentTimeMillis();
 				String filename = String.format("/home/hadoop/dasnes/kafka/target/testFile1.mp3", t);
+
+				Regions clientRegion = Regions.DEFAULT_REGION;
+				String bucketName = "dasnes-mpcs53014";
+				String fileObjKeyName = "test1.mp3";
+				AmazonS3Client s3Client = new AmazonS3Client();
+
 				processBuilder.command("bash", "-c", "wget --http-user=" + username + " --http-password=" + password + " https://audio.broadcastify.com/27730.mp3 > " + filename);
 				Process process = processBuilder.start();
 
@@ -98,6 +106,13 @@ public class FleetArrivals {
 				}
 				//then kill the process and upload the file to S3
 				process.destroy();
+
+				PutObjectRequest request = new PutObjectRequest(bucketName, fileObjKeyName, new File(filename));
+				ObjectMetadata metadata = new ObjectMetadata();
+				metadata.setContentType("plain/text");
+				metadata.addUserMetadata("title", "someTitle");
+				request.setMetadata(metadata);
+				s3Client.putObject(request);
 
 				producer.send(new ProducerRecord<String, String>(TOPIC, "hello world from dallon"));
 

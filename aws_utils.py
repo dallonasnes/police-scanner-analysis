@@ -92,9 +92,9 @@ def amazon_transcribe(transcribe, audio_file_name, max_speakers=-1):
   return result
 
 if __name__ == "__main__":
-    test_filename = 'wavs/31652.mp3'
+    test_filename = input("enter file path to upload")
     #uploaded = upload_to_aws(test_filename, 'testing-police-scanner-audio', 'first_test.mp3')
     #print(uploaded)
-    transcriber = get_transcriber()
-    amazon_transcribe(transcriber, "first_test.mp3", max_speakers=2)
+    #transcriber = get_transcriber()
+    #amazon_transcribe(transcriber, "first_test.mp3", max_speakers=2)
     

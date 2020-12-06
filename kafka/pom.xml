@@ -35,12 +35,7 @@
           <artifactId>aws-java-sdk</artifactId>
           <version>1.11.327</version>
           <type>pom</type>
-          <scope>import</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.example</groupId>
-          <artifactId>kafka-streaming</artifactId>
-          <version>1.0-SNAPSHOT</version>
+          <scope>compile</scope>
       </dependency>
 
   </dependencies>
