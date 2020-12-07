@@ -49,9 +49,12 @@ t = threading.Thread(target=aud.download_file,)
 t.daemon = True
 t.start()
 
-# wait 10 seconds for the thread to finish its work
-t.join(10)
+# wait 30 seconds for the thread to finish its work
+t.join(30)
 aud.set_event()
 print("uploading file to aws bucket")
-upload_to_aws(aud.local_filename, "dasnes-mpcs53014", "zone1.mp3")
+upload_to_aws(aud.local_filename, "dasnes-mpcs53014", aud.local_filename)
 rmtree(aud.my_dir)
+#now kick off transcriber job
+
+#TODO: once the transcriber finishes, a lambda sends the transcription URI to kafka consumer

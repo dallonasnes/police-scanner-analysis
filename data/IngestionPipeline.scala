@@ -103,3 +103,48 @@ ssh -i dasnes -L 8070:ec2-52-15-169-10.us-east-2.compute.amazonaws.com:8070 hado
 web client should take in a zone and display all rows + timestamps for that row
 */
 
+/*
+
+setup a new kafka topic for lambda function to write to
+"topic_dasnes_transcription_finished"
+
+created the topic by going to cluster and
+cd /home/hadoop/kafka_2.12-2.2.1/bin/
+
+then
+(can abbreviate connection string with just: Kafka-Zookeepers)
+./kafka-topics.sh --create --zookeeper z-2.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181,z-3.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181,z-1.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181 --replication-factor 1 --partitions 1 --topic topic_dasnes_transcription_finished
+
+and verify it is there by running:
+
+./kafka-topics.sh --list --zookeeper z-2.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181,z-3.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181,z-1.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181 | grep dasnes
+
+
+I can produce to the topic with 
+./kafka-console-producer.sh --broker-list b-2.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:9092,b-1.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:9092 --topic topic_dasnes_transcription_finished
+
+And I can consume from that topic with:
+./kafka-console-consumer.sh --bootstrap-server b-2.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:9092,b-1.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:9092 --topic topic_dasnes_transcription_finished --from-beginning
+
+
+Run the spark submit job as such:
+spark-submit --master local[2] --driver-java-options "-Dlog4j.configuration=file:///home/hadoop/ss.log4j.properties" --class StreamWeather uber-kafka-consumer-2-1.0-SNAPSHOT.jar b-1.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:9092,b-2.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:9092
+
+
+test by:
+enter this in the producer: {"zone_timestamp": "12345", "text": "my text"}
+and can check in hbase by: get 'dasnes_proj_csv_as_hbase', '12345'
+
+*/
+
+
+/*
+update the python code in a lambda by running:
+aws lambda update-function-code --function-name dasnes-write-uri-to-kafka-topic-on-transcribe-finish --zip-file fileb://my-deployment-package.zip
+
+*/
+
+
+
+
+

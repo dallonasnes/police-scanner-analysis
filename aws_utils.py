@@ -56,8 +56,8 @@ def amazon_transcribe(transcribe, audio_file_name, max_speakers=-1):
   if max_speakers > 10:
     raise ValueError("Maximum detected speakers is 10.")
 
-  job_uri = "s3://testing-police-scanner-audio/" + audio_file_name
-  job_name = (audio_file_name.split('.')[0]).replace(" ", "")
+  job_uri = "s3://dasnes-mpcs53014/" + audio_file_name
+  job_name = (audio_file_name.split('.')[0]).replace(" ", "") + str(time.time())
   
   # check if name is taken or not
   job_name = check_job_name(transcribe, job_name)
@@ -70,7 +70,8 @@ def amazon_transcribe(transcribe, audio_file_name, max_speakers=-1):
         LanguageCode='en-US',
         Settings = {'ShowSpeakerLabels': True,
                   'MaxSpeakerLabels': max_speakers
-                  }
+                  },
+        OutputBucketName='dasnes-mpcs53014'
     )
   else: 
     transcribe.start_transcription_job(
@@ -79,7 +80,8 @@ def amazon_transcribe(transcribe, audio_file_name, max_speakers=-1):
         MediaFormat=audio_file_name.split('.')[1],
         LanguageCode='en-US',
         Settings = {'ShowSpeakerLabels': True
-                  }
+                  },
+        OutputBucketName='dasnes-mpcs53014'
     )    
   
   while True:
@@ -92,9 +94,10 @@ def amazon_transcribe(transcribe, audio_file_name, max_speakers=-1):
   return result
 
 if __name__ == "__main__":
-    test_filename = input("enter file path to upload")
+    #test_filename = input("enter file path to upload")
     #uploaded = upload_to_aws(test_filename, 'testing-police-scanner-audio', 'first_test.mp3')
     #print(uploaded)
-    #transcriber = get_transcriber()
-    #amazon_transcribe(transcriber, "first_test.mp3", max_speakers=2)
+    transcriber = get_transcriber()
+    res = amazon_transcribe(transcriber, "zone1.mp3", max_speakers=2)
+    import pdb; pdb.set_trace()
     

@@ -20,7 +20,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d5f0979-71e3-4e7f-ba22-efc7e8a34aff" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../../kafka-consumer/kafka-consumer/kafka-consumer.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../aws_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../aws_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../data/IngestionPipeline.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../data/IngestionPipeline.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ingest_audio.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../ingest_audio.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -54,7 +57,9 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -77,7 +82,7 @@
       <workItem from="1605077897838" duration="405000" />
       <workItem from="1605159469603" duration="1032000" />
       <workItem from="1607228238803" duration="297000" />
-      <workItem from="1607228755268" duration="2501000" />
+      <workItem from="1607228755268" duration="3766000" />
     </task>
     <servers />
   </component>
@@ -102,30 +107,34 @@
     </state>
     <state x="-1479" y="740" width="1071" height="700" key="#com.intellij.execution.impl.EditConfigurationsDialog/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605159872912" />
     <state x="608" y="313" width="794" height="514" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1440.804@0.23.1440.804" timestamp="1607228844664" />
-    <state width="1398" height="246" key="GridCell.Tab.0.bottom" timestamp="1607229697524">
+    <state width="1143" height="246" key="GridCell.Tab.0.bottom" timestamp="1607295983892">
       <screen x="0" y="23" width="1440" height="804" />
     </state>
     <state width="1697" height="367" key="GridCell.Tab.0.bottom/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605160646074" />
-    <state width="1398" height="246" key="GridCell.Tab.0.bottom/0.23.1440.804@0.23.1440.804" timestamp="1607229697524" />
-    <state width="1398" height="246" key="GridCell.Tab.0.center" timestamp="1607229697522">
+    <state width="1143" height="246" key="GridCell.Tab.0.bottom/0.23.1440.804@0.23.1440.804" timestamp="1607295983892" />
+    <state width="1143" height="246" key="GridCell.Tab.0.center" timestamp="1607295983890">
       <screen x="0" y="23" width="1440" height="804" />
     </state>
     <state width="1697" height="367" key="GridCell.Tab.0.center/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605160646073" />
-    <state width="1398" height="246" key="GridCell.Tab.0.center/0.23.1440.804@0.23.1440.804" timestamp="1607229697522" />
-    <state width="1398" height="246" key="GridCell.Tab.0.left" timestamp="1607229697521">
+    <state width="1143" height="246" key="GridCell.Tab.0.center/0.23.1440.804@0.23.1440.804" timestamp="1607295983890" />
+    <state width="1143" height="246" key="GridCell.Tab.0.left" timestamp="1607295983889">
       <screen x="0" y="23" width="1440" height="804" />
     </state>
     <state width="1697" height="367" key="GridCell.Tab.0.left/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605160646072" />
-    <state width="1398" height="246" key="GridCell.Tab.0.left/0.23.1440.804@0.23.1440.804" timestamp="1607229697521" />
-    <state width="1398" height="246" key="GridCell.Tab.0.right" timestamp="1607229697523">
+    <state width="1143" height="246" key="GridCell.Tab.0.left/0.23.1440.804@0.23.1440.804" timestamp="1607295983889" />
+    <state width="1143" height="246" key="GridCell.Tab.0.right" timestamp="1607295983891">
       <screen x="0" y="23" width="1440" height="804" />
     </state>
     <state width="1697" height="367" key="GridCell.Tab.0.right/-2560.23.2560.1417/0.23.1440.806@-2560.23.2560.1417" timestamp="1605160646074" />
-    <state width="1398" height="246" key="GridCell.Tab.0.right/0.23.1440.804@0.23.1440.804" timestamp="1607229697523" />
+    <state width="1143" height="246" key="GridCell.Tab.0.right/0.23.1440.804@0.23.1440.804" timestamp="1607295983891" />
     <state x="221" y="64" key="SettingsEditor" timestamp="1607228766043">
       <screen x="0" y="23" width="1440" height="804" />
     </state>
     <state x="221" y="64" key="SettingsEditor/0.23.1440.804@0.23.1440.804" timestamp="1607228766043" />
+    <state x="319" y="47" key="new project wizard" timestamp="1607295641580">
+      <screen x="0" y="23" width="1440" height="804" />
+    </state>
+    <state x="319" y="47" key="new project wizard/0.23.1440.804@0.23.1440.804" timestamp="1607295641580" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
