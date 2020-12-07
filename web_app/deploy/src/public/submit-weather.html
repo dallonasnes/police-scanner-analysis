@@ -1,27 +1,27 @@
 <!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html>
   <head>
-    <title>Submit Weather</title>
+    <title>Submit Police Interactions</title>
     <link type="text/css" rel="stylesheet" href="/elegant-aero.css" />
   </head>
   <!-- Thanks to Mario C. E. Freese <mcefreese@gmail.com> for permission to use background image -->
   <body style='background-image:URL("AirLines-white.jpg");background-repeat:no-repeat;background-position:center top;-webkit-background-size:100%;-moz-background-size:100%;-o-background-size:100%;background-size: 100%;'>
     <p style="margin-bottom:5px"/>
-    <h2 class="elegant-aero" style="margin-left:30%;text-align:center;display:inline-block;color:#5E5E5E;background:#FFFFFF">&nbsp;Submit weather report&nbsp;</h2>
-    <form action="/weather.html" style="background:#FFFFFF;width:60%;margin:auto"  method="get" class="elegant-aero">
-      <label> 
-	<span>Station:</span> <input type="text" name="station" value="0"/>
-      </label>
+    <h2 class="elegant-aero" style="margin-left:30%;text-align:center;display:inline-block;color:#5E5E5E;background:#FFFFFF">&nbsp;Submit police interactions&nbsp;</h2>
+    <form action="/writeData" enctype="multipart/form-data" method="post" style="background:#FFFFFF;width:60%;margin:auto" class="elegant-aero">
+      <label>
+	<span>Write or upload recording of what cop said:</span> <input type="text" name="text"/>
+  <br>
+  <span>Time of event:</span> <input type="text" name="time"/>
+  <span>Duration:</span> <input type="text" name="duration"/>
+  <span>Which PD / city?:</span> <input type="text" name="deptName"/>
+  <span>Which zone of PD?</span> <input type="text" name="zone"/>
+
+    </label>
       <label style="font-weight:bold;color:#5E5E5E">
 	&nbsp;&nbsp;&nbsp;&nbsp;
-	&nbsp;fog <input type="checkbox" name="fog" value="1"/>
-	rain <input type="checkbox" name="rain" value="1"/>
-
-	snow <input type="checkbox" name="snow" value="1"/>
-	hail <input type="checkbox" name="hail" value="1"/>
-	thunder <input type="checkbox" name="thunder" value="1"/>
-	tornado <input type="checkbox" name="tornado" value="1"/>
-      </label>
+	&nbsp; Audio Recording <input type="file" name="recording"/>
+</label>
       <label>
 	<span>&nbsp;</span><input type="submit" value="Submit">
       </label>

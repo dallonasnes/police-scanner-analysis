@@ -115,6 +115,12 @@ then
 (can abbreviate connection string with just: Kafka-Zookeepers)
 ./kafka-topics.sh --create --zookeeper z-2.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181,z-3.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181,z-1.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181 --replication-factor 1 --partitions 1 --topic topic_dasnes_transcription_finished
 
+
+NEW TOPICS FOR WEB APP
+topic_dasnes_web_upload_with_audio
+topic_dasnes_web_upload_no_audio
+
+
 and verify it is there by running:
 
 ./kafka-topics.sh --list --zookeeper z-2.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181,z-3.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181,z-1.mpcs53014-kafka.fwx2ly.c4.kafka.us-east-2.amazonaws.com:2181 | grep dasnes
@@ -134,6 +140,9 @@ spark-submit --master local[2] --driver-java-options "-Dlog4j.configuration=file
 test by:
 enter this in the producer: {"zone_timestamp": "12345", "text": "my text"}
 and can check in hbase by: get 'dasnes_proj_csv_as_hbase', '12345'
+
+can test node on load balanced servers here: 
+http://mpcs53014-loadbalancer-217964685.us-east-2.elb.amazonaws.com:3005/submit-weather.html
 
 */
 

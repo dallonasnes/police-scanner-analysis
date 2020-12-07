@@ -8,6 +8,16 @@ const filesystem = require('fs');
 const url = require('url');
 const port = Number(process.argv[2]);
 
+var fs = require('fs');
+var path = require('path');
+var AWS = require('aws-sdk');
+AWS.config.update({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
+var s3 = new AWS.S3();
+const multer = require('multer');
+const prefix = 'uploads/';
+const upload = multer({
+  dest: prefix // this saves your file into a directory called "uploads"
+});
 const hbase = require('hbase')
 var hclient = hbase({ host: process.argv[3], port: Number(process.argv[4])})
 
@@ -70,38 +80,78 @@ var kafkaClient = new kafka.KafkaClient({kafkaHost: process.argv[5]});
 var kafkaProducer = new Producer(kafkaClient);
 var counter = 0;
 
-app.get('/weather.html',function (req, res) {
-	// var station_val = req.query['station'];
-	// var fog_val = (req.query['fog']) ? true : false;
-	// var rain_val = (req.query['rain']) ? true : false;
-	// var snow_val = (req.query['snow']) ? true : false;
-	// var hail_val = (req.query['hail']) ? true : false;
-	// var thunder_val = (req.query['thunder']) ? true : false;
-	// var tornado_val = (req.query['tornado']) ? true : false;
+app.post('/writeData', upload.single('recording'), function (req, res) {
+	var deptName = (req.body['deptName']) ? req.body['deptName'] : null;
+	var zone = (req.body['zone']) ? req.body['zone'] : null;
+	var time = (req.body['time']) ? req.body['time'] : null;
+	var duration = (req.body['duration']) ? req.body['duration'] : null;
+	var text = (req.body['text']) ? req.body['text'] : null ;
+	//var recording = (req.body['recording']) ? req.body['recording'] : null;
 	var report = {
 		zone_timestamp : "fromclient" + counter,
-		text : "hello world"
+		dept_name : deptName,
+		zone : zone,
+		time : time,
+		duration: duration,
+		text : text,
+		recording: null
 	};
+	console.log(report);
 	counter = counter + 1;
-	kafkaProducer.send([{ topic: 'topic_dasnes_transcription_finished', messages: JSON.stringify(report)}],
-		function (err, data) {
-			console.log("and made it back in here")
-			console.log("Kafka Error: " + err)
-			console.log(data);
-			console.log(report);
-			res.redirect('submit-weather.html');
-		});
-});
+	if (req.file) {
+		//upload audio file to s3
+		var filepath = prefix + req.file.filename;
+		console.log(filepath);
+		var fileStream = fs.createReadStream(filepath);
+		fileStream.on('error', function(err) {
+			console.log('File Error', err);
+		});		  
+		var uploadParams = {Bucket: 'dasnes-mpcs53014', Key: '', Body: ''};
+		uploadParams.Body = fileStream;
+		uploadParams.Key = "";
+		if (deptName) uploadParams.Key += deptName;
+		if (zone) uploadParams.Key += zone;
+		if (time) uploadParams.Key += time;
+		uploadParams.Key += "." + Date.now() + ".mp3";
+		console.log(uploadParams.Key)
+		report.recording = uploadParams.Key;
+		s3.upload(uploadParams, function (err, data) {
+			if (err) console.log("Error", err);
+			if (data) {
+				console.log("Uploaded in:", data.Location);
+				//now can delete the origin file from our local filesystem
+				filesystem.unlink(filepath, (err) => {
+					if (err) {
+						console.log(err);
+						console.log("failed to remove file at path: " + filepath);
+					}
+				})
 
-var report = {
-	zone_timestamp : "fromclient",
-	text : "hello world"
-};
-kafkaProducer.send([{ topic: 'topic_dasnes_transcription_finished', messages: JSON.stringify(report)}],
-	function (err, data) {
-		console.log("Kafka Error: " + err)
-		console.log(data);
-		console.log(report);
-	});
+				//now post to kafka topic that audio was uploaded
+				kafkaProducer.send([{ topic: 'topic_dasnes_web_upload_with_audio', messages: JSON.stringify(report)}],
+					function (err, data) {
+						console.log("post to kafka after successful upload to s3");
+						console.log("Kafka Error: " + err)
+						console.log(data);
+						console.log(report);
+						res.redirect('submit-weather.html');
+					});
+			} else {
+				console.log("no data after trying to upload audio to s3. returning html page");
+				res.redirect('submit-weather.html');
+			}
+		});
+
+	} else {
+		kafkaProducer.send([{ topic: 'topic_dasnes_web_upload_no_audio', messages: JSON.stringify(report)}],
+			function (err, data) {
+				console.log("no audio file in upload");
+				console.log("Kafka Error: " + err)
+				console.log(data);
+				console.log(report);
+				res.redirect('submit-weather.html');
+			});
+	}
+});
 
 app.listen(port);
