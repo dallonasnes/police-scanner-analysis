@@ -87,7 +87,6 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 	var time = (req.body['time']) ? req.body['time'] : null;
 	var duration = (req.body['duration']) ? req.body['duration'] : null;
 	var text = (req.body['text']) ? req.body['text'] : null ;
-	//var recording = (req.body['recording']) ? req.body['recording'] : null;
 	var report = {
 		zone_timestamp : "fromclient" + counter,
 		dept_name : deptName,
