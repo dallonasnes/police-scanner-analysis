@@ -7,7 +7,7 @@ const mustache = require('mustache');
 const filesystem = require('fs');
 const url = require('url');
 const port = Number(process.argv[2]);
-
+const bucket = 'dasnes-mpcs53014'
 var fs = require('fs');
 var path = require('path');
 var AWS = require('aws-sdk');
@@ -81,6 +81,7 @@ var kafkaProducer = new Producer(kafkaClient);
 var counter = 0;
 
 app.post('/writeData', upload.single('recording'), function (req, res) {
+	
 	var deptName = (req.body['deptName']) ? req.body['deptName'] : null;
 	var zone = (req.body['zone']) ? req.body['zone'] : null;
 	var time = (req.body['time']) ? req.body['time'] : null;
@@ -106,7 +107,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		fileStream.on('error', function(err) {
 			console.log('File Error', err);
 		});		  
-		var uploadParams = {Bucket: 'dasnes-mpcs53014', Key: '', Body: ''};
+		var uploadParams = {Bucket: bucket, Key: '', Body: ''};
 		uploadParams.Body = fileStream;
 		uploadParams.Key = "";
 		if (deptName) uploadParams.Key += deptName;
@@ -134,11 +135,9 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 						console.log("Kafka Error: " + err)
 						console.log(data);
 						console.log(report);
-						res.redirect('submit-weather.html');
 					});
 			} else {
 				console.log("no data after trying to upload audio to s3. returning html page");
-				res.redirect('submit-weather.html');
 			}
 		});
 
@@ -149,9 +148,28 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 				console.log("Kafka Error: " + err)
 				console.log(data);
 				console.log(report);
-				res.redirect('submit-weather.html');
 			});
 	}
+
+	// regardless of conditionals, all branches must upload report to the day's new folder in s3
+	// so that it can get ingested into the mdc 
+	let date_ob = new Date();
+	let date = ("0" + date_ob.getDate()).slice(-2); // adjust 0 before single digit date
+	let month = ("0" + (date_ob.getMonth() + 1)).slice(-2); // current month
+	let year = date_ob.getFullYear(); // current year
+	var folder_date_prefix = "INGESTION" + year + "-" + month + "-" + date + "/";
+
+	s3.putObject({
+		Bucket: bucket,
+		Key: folder_date_prefix + Date.now() + ".json",
+		Body: JSON.stringify(report),
+		ContentType: "application/json"},
+		function (err,data) {
+		  console.log(JSON.stringify(err) + " " + JSON.stringify(data));
+		}
+	  );
+
+	res.redirect('submit-weather.html');
 });
 
 app.listen(port);
