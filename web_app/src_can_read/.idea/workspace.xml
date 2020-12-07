@@ -20,22 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d5f0979-71e3-4e7f-ba22-efc7e8a34aff" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/src.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/AirLines-white.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/elegant-aero.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/route-delays.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/submit-weather.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/table.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/result.mustache" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +78,7 @@
       <workItem from="1605077897838" duration="405000" />
       <workItem from="1605159469603" duration="1032000" />
       <workItem from="1607228238803" duration="297000" />
-      <workItem from="1607228755268" duration="4364000" />
+      <workItem from="1607228755268" duration="3908000" />
     </task>
     <servers />
   </component>
@@ -142,9 +127,21 @@
       <screen x="0" y="23" width="1440" height="804" />
     </state>
     <state x="221" y="64" key="SettingsEditor/0.23.1440.804@0.23.1440.804" timestamp="1607228766043" />
-    <state x="319" y="47" key="new project wizard" timestamp="1607303265248">
+    <state x="319" y="47" key="new project wizard" timestamp="1607295641580">
       <screen x="0" y="23" width="1440" height="804" />
     </state>
-    <state x="319" y="47" key="new project wizard/0.23.1440.804@0.23.1440.804" timestamp="1607303265248" />
+    <state x="319" y="47" key="new project wizard/0.23.1440.804@0.23.1440.804" timestamp="1607295641580" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/app.js</url>
+          <line>86</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

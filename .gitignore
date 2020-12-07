@@ -1,3 +1,6 @@
+#
+.DS_Store
+
 #kafka consumer
 kafka-consumer-2/target
 
