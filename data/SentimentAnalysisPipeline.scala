@@ -3,6 +3,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.SparkContext._
 import org.apache.spark.sql._
 import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.PipelineModel
 import org.apache.spark.ml.classification.LogisticRegression
 import org.apache.spark.ml.tuning.ParamGridBuilder
 import org.apache.spark.ml.feature.{HashingTF, Tokenizer, CountVectorizer, RegexTokenizer, StopWordsRemover, IDF}
@@ -101,6 +102,11 @@ for (a <- accuracies) {
 
 val arg_max_idx = accuracies.indexOf(arg_max_val)
 val best_model = all_models(arg_max_idx)
+
+//best_model.save("pipelineModel.model")
+best_model.save("hdfs:///tmp/dasnes-final-project/sample-data/models/")
+
+// can load the model with PipelineModel.load("hdfs...")
 
 //save best model to disk
 

@@ -153,6 +153,13 @@ aws lambda update-function-code --function-name dasnes-write-uri-to-kafka-topic-
 
 */
 
+/*
+starting with just one hive table:
+
+id | dept name | zone | time of day | date of event | duration | top 5 words from interaction | least 5 words | avg sentiment score
+
+
+*/
 
 
 
