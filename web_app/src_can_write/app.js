@@ -84,6 +84,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 	
 	var deptName = (req.body['deptName']) ? req.body['deptName'] : null;
 	var zone = (req.body['zone']) ? req.body['zone'] : null;
+	var date = (req.body['date']) ? req.body['date'] : null;
 	var time = (req.body['time']) ? req.body['time'] : null;
 	var duration = (req.body['duration']) ? req.body['duration'] : null;
 	var text = (req.body['text']) ? req.body['text'] : null ;
@@ -91,6 +92,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		zone_timestamp : "fromclient" + counter,
 		dept_name : deptName,
 		zone : zone,
+		date : date,
 		time : time,
 		duration: duration,
 		text : text,
@@ -111,6 +113,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		uploadParams.Key = "";
 		if (deptName) uploadParams.Key += deptName;
 		if (zone) uploadParams.Key += zone;
+		if (date) uploadParams.Key += date;
 		if (time) uploadParams.Key += time;
 		uploadParams.Key += "." + Date.now() + ".mp3";
 		console.log(uploadParams.Key)
@@ -153,10 +156,10 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 	// regardless of conditionals, all branches must upload report to the day's new folder in s3
 	// so that it can get ingested into the mdc 
 	let date_ob = new Date();
-	let date = ("0" + date_ob.getDate()).slice(-2); // adjust 0 before single digit date
+	let cur_date = ("0" + date_ob.getDate()).slice(-2); // adjust 0 before single digit date
 	let month = ("0" + (date_ob.getMonth() + 1)).slice(-2); // current month
 	let year = date_ob.getFullYear(); // current year
-	var folder_date_prefix = "INGESTION" + year + "-" + month + "-" + date + "/";
+	var folder_date_prefix = "INGESTION" + year + "-" + month + "-" + cur_date + "/";
 
 	s3.putObject({
 		Bucket: bucket,
