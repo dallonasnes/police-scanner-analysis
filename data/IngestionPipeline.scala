@@ -156,9 +156,14 @@ aws lambda update-function-code --function-name dasnes-write-uri-to-kafka-topic-
 /*
 starting with just one hive table:
 
-id | dept name | zone | time of day | date of event | duration | top 5 words from interaction | least 5 words | avg sentiment score
+id | dept name | zone | time of day | date of event | duration | text
 
-
+I simulated source data to match this schema, then moved it into AWS
+From there, I ssh'd into the cluster and ran this command to put that csv into hdfs
+#first create the new dir
+hdfs dfs -mkdir /tmp/dasnes-final-project/sample-data/starter-data-final-schema/
+#then copy the data over
+aws s3 cp s3://dasnes-mpcs53014/starter_data_final_schema.csv /dev/stdout | hdfs dfs -put - /tmp/dasnes-final-project/sample-data/starter-data/
 */
 
 
