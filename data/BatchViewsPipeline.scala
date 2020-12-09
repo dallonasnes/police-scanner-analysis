@@ -113,8 +113,9 @@ val result = mappedDf.groupBy("dept_name", "zone", "time_of_day", "date_of_event
 // also working but not well
 //var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].map(arr => arr.split(" ").map(word => (word, 1))))
 
-//this gives me an array of strings
-var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].mkString(" "))
+//TODO : need to find out if the below operation retains order
+//this gives me an array of array of strings
+var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].toArray)
 
 //this one works -- assuming no split in the above line
 //var newTmp = sc.parallelize(tmp).map( sent => sent.split(" ").map(word => (word, 1)))
@@ -130,15 +131,35 @@ var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]
 
 // sc.parallelize(sc.parallelize(tmp).take(2)(0).split(" ").map(word => (word, 1))).reduceByKey(_+_).collect()
 
+val stop_words = sc.textFile("hdfs:///tmp/dasnes-final-project/sample-data/stop_words").collect().toArray
+
 var counter = 0
 var arr = Array()
-for (stringTemp <- tmp){
-	// get an array of words sorted by usage in the string of words for that row
-	arr = sc.parallelize(stringTemp.split(" ").map(word => (word, 1))).reduceByKey(_+_).sortBy(_._2, false).collect()
-	//now filter out the stop words
+for (arrOfStrs <- tmp){
+	//here stringTemp is an array of Strings
 
-	top5Words = arr.take(5)
-	least5Words = arr.takeRight(5)
+	// get an array of words sorted by usage in the string of words for that row
+	val arr = sc.parallelize(arrOfStrs.mkString(" ").split(" ").map(word => (word, 1))).reduceByKey(_+_).sortBy(_._2, false).collect()
+	//now filter out the stop words
+	val filteredArr = arr.filter(kvp => kvp._1.length > 2).filter(kvp => !(stop_words contains kvp._1))
+
+	val top5Words = filteredArr.take(5)
+	val least5Words = filteredArr.takeRight(5)
+
+	var sentScore = 0.0
+	val sentCount = arrOfStrs.length
+	//now try running inference on each sentence of the array
+
+	//but doing this for each sentence of each row in the input data may take forever
+	// so consider doing it on all data instead
+	for (sent <- arrOfStrs) {
+
+		val inpDF = sc.parallelize(Seq(sent)).toDF("text")
+		val prediction: Double = trainedModel.transform(inpDF.withColumnRenamed("text", "review")).select("prediction").take(1)(0)(0).asInstanceOf[Double]
+	}
+
+	
+
 }
 
 /*
