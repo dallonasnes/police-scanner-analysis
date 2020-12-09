@@ -10,7 +10,7 @@ import org.apache.spark.ml.feature.{HashingTF, Tokenizer, CountVectorizer, Regex
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{DoubleType, StringType, ArrayType, StructField, StructType}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
-
+import org.apache.spark.sql.SaveMode
 import scala.math.pow
 import scala.collection.mutable
 
@@ -115,7 +115,8 @@ val result = mappedDf.groupBy("dept_name", "zone", "time_of_day", "date_of_event
 
 //TODO : need to find out if the below operation retains order
 //this gives me an array of array of strings
-var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].toArray)
+case class BaseData(id: String, dept_name: String, zone: String, time_of_day: String, date_of_event: String, text: Array[String])
+var tmp = result.select("dept_name", "zone", "time_of_day", "date_of_event", "text").collect().map(x => new BaseData(x(0).asInstanceOf[String] + x(1).asInstanceOf[String] + x(2).asInstanceOf[String] + x(3).asInstanceOf[String], x(0).asInstanceOf[String], x(1).asInstanceOf[String], x(2).asInstanceOf[String], x(3).asInstanceOf[String], x(4).asInstanceOf[Seq[String]].toArray))
 
 //this one works -- assuming no split in the above line
 //var newTmp = sc.parallelize(tmp).map( sent => sent.split(" ").map(word => (word, 1)))
@@ -132,34 +133,43 @@ var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]
 // sc.parallelize(sc.parallelize(tmp).take(2)(0).split(" ").map(word => (word, 1))).reduceByKey(_+_).collect()
 
 val stop_words = sc.textFile("hdfs:///tmp/dasnes-final-project/sample-data/stop_words").collect().toArray
-case class Analysis(most_common_words: Array[String], least_common_words: Array[String], sent_score: Double, sent_count: Double)
-var counter = 0
+case class Analysis(id: String, dept_name: String, zone: String, time_of_day: String, date_of_event: String, most_common_words: Array[String], least_common_words: Array[String], sent_score: BigInt, sent_count: BigInt)
+//var counter = 0
 //for (arrOfStrs <- tmp){
 val addtlAnalysisFields = tmp.map({
 	//here stringTemp is an array of Strings
 	arrOfStrs =>
 	// get an array of words sorted by usage in the string of words for that row
-	val arr = sc.parallelize(arrOfStrs.mkString(" ").split(" ").map(word => (word, 1))).reduceByKey(_+_).sortBy(_._2, false).collect()
+	val arr = sc.parallelize(arrOfStrs.text.mkString(" ").split(" ").map(word => (word, 1))).reduceByKey(_+_).sortBy(_._2, false).collect()
 	//now filter out the stop words
 	val filteredArr = arr.filter(kvp => kvp._1.length > 2).filter(kvp => !(stop_words contains kvp._1))
 
 	val top5Words = filteredArr.take(5).map(kvp => kvp._1).toArray
 	val least5Words = filteredArr.takeRight(5).map(kvp => kvp._1).toArray
 
-	var sentScore = 0.0
-	val sentCount = arrOfStrs.length.toDouble
+	var sentScore = BigInt(1)
+	val sentCount = BigInt(arrOfStrs.text.length.toInt)
 	//now try running inference on each sentence of the array
 
 	//but doing this for each sentence of each row in the input data may take forever
-	// so consider doing it on all data instead
-	for (sent <- arrOfStrs) {
+	// so consider doing it on all data instead, by passing arrOfStrs instead of Seq(sent) and getting rid of that loop
+	// for (sent <- arrOfStrs) {
 
-		val inpDF = sc.parallelize(Seq(sent)).toDF("text")
-		sentScore += trainedModel.transform(inpDF.withColumnRenamed("text", "review")).select("prediction").take(1)(0)(0).asInstanceOf[Double]
-	}
-	new Analysis(top5Words, least5Words, sentScore, sentCount)
+	//   val inpDF = sc.parallelize(Seq(sent)).toDF("text")
+	//   sentScore += trainedModel.transform(inpDF.withColumnRenamed("text", "review")).select("prediction").take(1)(0)(0).asInstanceOf[Double]
+	// }
 
+	val inpDF = sc.parallelize(arrOfStrs.text).toDF("text")
+	val prediction = trainedModel.transform(inpDF.withColumnRenamed("text", "review")).select("prediction").take(1)(0)(0).asInstanceOf[Double].toInt
+	sentScore += BigInt(prediction)
+	new Analysis(arrOfStrs.id, arrOfStrs.dept_name, arrOfStrs.zone, arrOfStrs.time_of_day, arrOfStrs.date_of_event, top5Words, least5Words, sentScore, sentCount)
 })
+
+
+val addtlAnalysisFields_asDF = sc.parallelize(addtlAnalysisFields).toDF
+
+//now we have the full dataset that we want to write out to hive
+addtlAnalysisFields_asDF.write.mode(SaveMode.Overwrite).saveAsTable("dasnes_view_as_hive")
 
 /*
 id string,
@@ -173,12 +183,4 @@ sentiment_score_sum bigint,
 sentiment_score_total bigint
 */
 
-
-
-
-var temp = sourceData.select("text").flatMap(el => el.getString(0).split(" ")).
-map(_.replaceAll("[,.!?:;)( \t\n]", "").trim.toLowerCase).
-filter(!_.isEmpty).filter(_.length > 2).
-map(word => (word, 1)).
-rdd.reduceByKey(_ + _).toDF
 
