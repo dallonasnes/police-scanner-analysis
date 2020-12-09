@@ -132,22 +132,22 @@ var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]
 // sc.parallelize(sc.parallelize(tmp).take(2)(0).split(" ").map(word => (word, 1))).reduceByKey(_+_).collect()
 
 val stop_words = sc.textFile("hdfs:///tmp/dasnes-final-project/sample-data/stop_words").collect().toArray
-
+case class Analysis(most_common_words: Array[String], least_common_words: Array[String], sent_score: Double, sent_count: Double)
 var counter = 0
-var arr = Array()
-for (arrOfStrs <- tmp){
+//for (arrOfStrs <- tmp){
+val addtlAnalysisFields = tmp.map({
 	//here stringTemp is an array of Strings
-
+	arrOfStrs =>
 	// get an array of words sorted by usage in the string of words for that row
 	val arr = sc.parallelize(arrOfStrs.mkString(" ").split(" ").map(word => (word, 1))).reduceByKey(_+_).sortBy(_._2, false).collect()
 	//now filter out the stop words
 	val filteredArr = arr.filter(kvp => kvp._1.length > 2).filter(kvp => !(stop_words contains kvp._1))
 
-	val top5Words = filteredArr.take(5)
-	val least5Words = filteredArr.takeRight(5)
+	val top5Words = filteredArr.take(5).map(kvp => kvp._1).toArray
+	val least5Words = filteredArr.takeRight(5).map(kvp => kvp._1).toArray
 
 	var sentScore = 0.0
-	val sentCount = arrOfStrs.length
+	val sentCount = arrOfStrs.length.toDouble
 	//now try running inference on each sentence of the array
 
 	//but doing this for each sentence of each row in the input data may take forever
@@ -155,12 +155,11 @@ for (arrOfStrs <- tmp){
 	for (sent <- arrOfStrs) {
 
 		val inpDF = sc.parallelize(Seq(sent)).toDF("text")
-		val prediction: Double = trainedModel.transform(inpDF.withColumnRenamed("text", "review")).select("prediction").take(1)(0)(0).asInstanceOf[Double]
+		sentScore += trainedModel.transform(inpDF.withColumnRenamed("text", "review")).select("prediction").take(1)(0)(0).asInstanceOf[Double]
 	}
+	new Analysis(top5Words, least5Words, sentScore, sentCount)
 
-	
-
-}
+})
 
 /*
 id string,
