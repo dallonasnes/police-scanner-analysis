@@ -20,7 +20,7 @@ const upload = multer({
 });
 const hbase = require('hbase')
 var hclient = hbase({ host: process.argv[3], port: Number(process.argv[4])})
-
+const hbaseTableName = 'dasnes_view_as_hbase';
 // HBase counters are stored as 8 byte binary data that the HBase Node module
 // interprets as an 8 character string. Use the Javascript Buffer library to
 // convert into a number
@@ -35,41 +35,134 @@ function rowToMap(row) {
 	return stats;
 }
 
-hclient.table('dasnes_proj_csv_as_hbase').row('12345').get((error, value) => {
-	// console.info(rowToMap(value))
-	console.info(value)
-})
+var htmlViewTop = `<!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html>
+  <head>
+    <title>Views</title>
+    <link type="text/css" rel="stylesheet" href="table.css" />
+  </head>
+  <body>
+  <div></div>`;
 
+var htmlViewBottom = `</div>
+</body></html>`;
+
+
+var possibleDepts;
+var possibleZones;
+var possibleTimeOfDay;
+var possibleSeason;
+
+function generateHtmlFilters(){
+	//first add dept filter
+	var deptFilter = `<select name="dept" id="dept">
+		<option value="any_pd">Any PD</option>`;
+	possibleDepts.forEach(d => {
+		deptFilter += `<option value="` + d + `" id="` + d + `">` + d + `</option>`
+	});
+	deptFilter += `</select>`;
+
+	var zoneFilter = `<select name="zone" id="zone">
+		<option value="any_zone">Any Zone</option>`;
+	possibleZones.forEach(z => {
+		zoneFilter += `<option value="` + z + `" id="` + z + `">` + z + `</option>`
+	})
+	zoneFilter += `</select>`;
+
+	var timeOfDayFilter = `<select name="time_of_day" id="time_of_day">
+	<option value="any_time_of_day">Any Time of Day</option>`;
+	possibleTimeOfDay.forEach(z => {
+		timeOfDayFilter += `<option value="` + z + `" id="` + z + `">` + z + `</option>`
+	})
+	timeOfDayFilter += `</select>`;
+
+	var seasonFilter = `<select name="time_of_year" id="time_of_year">
+	<option value="any_time_of_year">Any Time of Year</option>`;
+	possibleSeason.forEach(z => {
+		seasonFilter += `<option value="` + z + `" id="` + z + `">` + z + `</option>`
+	})
+	seasonFilter += `</select>`;
+
+	return deptFilter + zoneFilter + timeOfDayFilter + seasonFilter;
+}
+
+var viewsHtml;
+//to dynamically populate dropdown with validate options in hbase
+hclient.table(hbaseTableName).scan({
+			maxVersions: 1},
+	(err, cells) => {
+		possibleDepts = Array.from(new Set(cells.
+			filter(x => x.column === 'stats:dept_name').
+			map(x => x['$'])));
+		possibleZones = Array.from(new Set(cells.
+			filter(x => x.column === 'stats:zone').
+			map(x => x['$'])));
+		possibleTimeOfDay = Array.from(new Set(cells.
+			filter(x => x.column === 'stats:time_of_day').
+			map(x => x['$'])));
+		possibleSeason = Array.from(new Set(cells.
+			filter(x => x.column === 'stats:season').
+			map(x => x['$'])));
+		
+		//now generate dynamic html
+		viewsHtml = htmlViewTop + generateHtmlFilters() + htmlViewBottom;
+});
+
+
+function generateKeyFromRequest(req){
+	//first extract args from request
+	//and build key used to query hbase
+	return 'cpdzone4mornspring';
+}
+
+//var viewsHtml = filesystem.readFileSync("views.html").toString();
+/*
+TO QUERY A PARTICULAR ROW
+BASED OFF OF SELECTING FILTERS AND CLICKING SUBMIT
+var key = generateKeyFromRequest(req);
+	hclient.table(hbaseTableName).row(key).get((err, cells) => {
+		console.log('aha !')
+		console.log(cells);
+		//do addtl processing here
+
+		var html = mustache.render(viewsTemplate);
+		res.send(html);
+
+	})
+
+*/
 
 app.use(express.static('public'));
-app.get('/delays.html',function (req, res) {
-    const route=req.query['origin'] + req.query['dest'];
-    console.log(route);
-	hclient.table('weather_delays_by_route_v2').row(route).get(function (err, cells) {
-		const weatherInfo = rowToMap(cells);
-		console.log(weatherInfo)
-		function weather_delay(weather) {
-			var flights = weatherInfo["delay:" + weather + "_flights"];
-			var delays = weatherInfo["delay:" + weather + "_delays"];
-			if(flights == 0)
-				return " - ";
-			return (delays/flights).toFixed(1); /* One decimal place */
-		}
-
-		var template = filesystem.readFileSync("result.mustache").toString();
-		var html = mustache.render(template,  {
-			origin : req.query['origin'],
-			dest : req.query['dest'],
-			clear_dly : weather_delay("clear"),
-			fog_dly : weather_delay("fog"),
-			rain_dly : weather_delay("rain"),
-			snow_dly : weather_delay("snow"),
-			hail_dly : weather_delay("hail"),
-			thunder_dly : weather_delay("thunder"),
-			tornado_dly : weather_delay("tornado")
-		});
-		res.send(html);
-	});
+app.get('/', function (req, res) {
+	//loads the main screen, so populate the template with filter options
+	res.send(viewsHtml);
+	
+	//  const route=req.query['origin'] + req.query['dest'];
+    // console.log(route);
+	// hclient.table('weather_delays_by_route_v2').row(route).get(function (err, cells) {
+	// 	const weatherInfo = rowToMap(cells);
+	// 	console.log(weatherInfo)
+	// 	function weather_delay(weather) {
+	// 		var flights = weatherInfo["delay:" + weather + "_flights"];
+	// 		var delays = weatherInfo["delay:" + weather + "_delays"];
+	// 		if(flights == 0)
+	// 			return " - ";
+	// 		return (delays/flights).toFixed(1); /* One decimal place */
+	// 	}
+		
+	// 	var template = filesystem.readFileSync("result.mustache").toString();
+	// 	var html = mustache.render(template,  {
+	// 		origin : req.query['origin'],
+	// 		dest : req.query['dest'],
+	// 		clear_dly : weather_delay("clear"),
+	// 		fog_dly : weather_delay("fog"),
+	// 		rain_dly : weather_delay("rain"),
+	// 		snow_dly : weather_delay("snow"),
+	// 		hail_dly : weather_delay("hail"),
+	// 		thunder_dly : weather_delay("thunder"),
+	// 		tornado_dly : weather_delay("tornado")
+	// 	});
+	// 	res.send(html);
 });
 
 /* Send simulated weather to kafka */
