@@ -9,6 +9,7 @@ import org.apache.spark.ml.tuning.ParamGridBuilder
 import org.apache.spark.ml.feature.{HashingTF, Tokenizer, CountVectorizer, RegexTokenizer, StopWordsRemover, IDF}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{DoubleType, StringType, ArrayType, StructField, StructType}
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
 
 import scala.math.pow
 import scala.collection.mutable
@@ -60,7 +61,10 @@ val schema = new StructType().
 */
 
 //now need to get rid of any null possibility in the sourceData
-val validatedData = sourceData.filter(col("dept_name").isNotNull).filter(col("zone").isNotNull).filter(col("time_of_day").isNotNull).filter(col("date_of_event").isNotNull).filter(col("duration").isNotNull).filter(col("text").isNotNull)
+val validatedData = sourceData.filter(col("dept_name").isNotNull).
+	filter(col("zone").isNotNull).filter(col("time_of_day").isNotNull).
+	filter(col("date_of_event").isNotNull).filter(col("duration").isNotNull).
+	filter(col("text").isNotNull)
 
 //first i have to convert input from time into time_of_day (morn, eve, etc)
 //and convert date into season
@@ -93,10 +97,49 @@ val schema = new StructType().
 var mappedDf = spark.createDataFrame(mappedRdd, schema)
 
 //now aggregate together all of the texts 
-val result = mappedDf.groupBy("dept_name", "zone", "time_of_day", "date_of_event").agg(collect_list("text"))
-
+val result = mappedDf.groupBy("dept_name", "zone", "time_of_day", "date_of_event").agg(collect_list("text").as("text"))
+/*val validatedResult = result.filter(col("dept_name").isNotNull).
+	filter(col("zone").isNotNull).filter(col("time_of_day").isNotNull).
+	filter(col("date_of_event").isNotNull).
+	filter(col("text").isNotNull)*/
 // NOW show most and least common words by zone
 
+//fixes it
+// each row in the dataframe is Array[String]
+
+// this seems to work but has a long runtime
+//var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].map(arr => sc.parallelize(arr.split(" ").map(word => (word, 1))).reduceByKey(_+_)))
+
+// also working but not well
+//var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].map(arr => arr.split(" ").map(word => (word, 1))))
+
+//this gives me an array of strings
+var tmp = result.select("text").collect().map(x => x(1).asInstanceOf[Seq[String]].mkString(" "))
+
+//this one works -- assuming no split in the above line
+//var newTmp = sc.parallelize(tmp).map( sent => sent.split(" ").map(word => (word, 1)))
+
+// this also works
+//var wordCountByRow = newTmp.map(x => sc.parallelize(x).reduceByKey(_+_))
+
+//but the problem with the above two is that doing wordCOunt on a text stream is too big...
+
+// SPARK-5063 prevents me from nesting RDDs and thus doing nested word count for each array
+
+// so the only alternative I can think of is to do it in for loops
+
+// sc.parallelize(sc.parallelize(tmp).take(2)(0).split(" ").map(word => (word, 1))).reduceByKey(_+_).collect()
+
+var counter = 0
+var arr = Array()
+for (stringTemp <- tmp){
+	// get an array of words sorted by usage in the string of words for that row
+	arr = sc.parallelize(stringTemp.split(" ").map(word => (word, 1))).reduceByKey(_+_).sortBy(_._2, false).collect()
+	//now filter out the stop words
+
+	top5Words = arr.take(5)
+	least5Words = arr.takeRight(5)
+}
 
 /*
 id string,
