@@ -42,9 +42,11 @@ var htmlViewTop = `<!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">
     <link type="text/css" rel="stylesheet" href="table.css" />
   </head>
   <body>
-  <div></div>`;
+  <div>
+  <form action="/getView" method="get" style="background:#FFFFFF;width:60%;margin:auto" class="elegant-aero">
+  `;
 
-var htmlViewBottom = `</div>
+var htmlViewBottom = `<button type="submit">Submit</button></form></div>
 </body></html>`;
 
 
@@ -55,114 +57,122 @@ var possibleSeason;
 
 function generateHtmlFilters(){
 	//first add dept filter
-	var deptFilter = `<select name="dept" id="dept">
-		<option value="any_pd">Any PD</option>`;
+	var deptFilter = `<select name="dept" id="dept">`;
+	// <option value="any_pd">Any PD</option>`;
 	possibleDepts.forEach(d => {
 		deptFilter += `<option value="` + d + `" id="` + d + `">` + d + `</option>`
 	});
 	deptFilter += `</select>`;
 
-	var zoneFilter = `<select name="zone" id="zone">
-		<option value="any_zone">Any Zone</option>`;
+	var zoneFilter = `<select name="zone" id="zone">`;
+	// <option value="any_zone">Any Zone</option>`;
 	possibleZones.forEach(z => {
 		zoneFilter += `<option value="` + z + `" id="` + z + `">` + z + `</option>`
-	})
+	});
 	zoneFilter += `</select>`;
 
-	var timeOfDayFilter = `<select name="time_of_day" id="time_of_day">
-	<option value="any_time_of_day">Any Time of Day</option>`;
+	var timeOfDayFilter = `<select name="time_of_day" id="time_of_day">`;
+	// <option value="any_time_of_day">Any Time of Day</option>`;
 	possibleTimeOfDay.forEach(z => {
 		timeOfDayFilter += `<option value="` + z + `" id="` + z + `">` + z + `</option>`
-	})
+	});
 	timeOfDayFilter += `</select>`;
 
-	var seasonFilter = `<select name="time_of_year" id="time_of_year">
-	<option value="any_time_of_year">Any Time of Year</option>`;
+	var seasonFilter = `<select name="time_of_year" id="time_of_year">`;
+	// <option value="any_time_of_year">Any Time of Year</option>`;
 	possibleSeason.forEach(z => {
 		seasonFilter += `<option value="` + z + `" id="` + z + `">` + z + `</option>`
-	})
+	});
 	seasonFilter += `</select>`;
 
 	return deptFilter + zoneFilter + timeOfDayFilter + seasonFilter;
 }
 
-var viewsHtml;
+var formViewHtml;
 //to dynamically populate dropdown with validate options in hbase
-hclient.table(hbaseTableName).scan({
-			maxVersions: 1},
-	(err, cells) => {
-		possibleDepts = Array.from(new Set(cells.
-			filter(x => x.column === 'stats:dept_name').
-			map(x => x['$'])));
-		possibleZones = Array.from(new Set(cells.
-			filter(x => x.column === 'stats:zone').
-			map(x => x['$'])));
-		possibleTimeOfDay = Array.from(new Set(cells.
-			filter(x => x.column === 'stats:time_of_day').
-			map(x => x['$'])));
-		possibleSeason = Array.from(new Set(cells.
-			filter(x => x.column === 'stats:season').
-			map(x => x['$'])));
-		
-		//now generate dynamic html
-		viewsHtml = htmlViewTop + generateHtmlFilters() + htmlViewBottom;
-});
+hclient.table(hbaseTableName).
+	scan({
+		maxVersions: 1},
+		(err, cells) => {
+			if (!cells) {
+				console.log("no cells came back on page load!");
+				formViewHtml = "<p>No cells came back on initial page load :(</p>";
+				return;
+			}
+
+			possibleDepts = Array.from(new Set(cells.
+				filter(x => x.column === 'stats:dept_name').
+				map(x => x['$'])));
+			possibleZones = Array.from(new Set(cells.
+				filter(x => x.column === 'stats:zone').
+				map(x => x['$'])));
+			possibleTimeOfDay = Array.from(new Set(cells.
+				filter(x => x.column === 'stats:time_of_day').
+				map(x => x['$'])));
+			possibleSeason = Array.from(new Set(cells.
+				filter(x => x.column === 'stats:season').
+				map(x => x['$'])));
+			
+			//now generate dynamic html
+			formViewHtml = htmlViewTop + generateHtmlFilters() + htmlViewBottom;
+		});
 
 
 function generateKeyFromRequest(req){
 	//first extract args from request
 	//and build key used to query hbase
-	return 'cpdzone4mornspring';
+	var dept = req.query['dept'];
+	var zone = req.query['zone'];
+	var timeOfDay = req.query['time_of_day'];
+	var timeOfYear = req.query['time_of_year'];
+
+	return dept+zone+timeOfDay+timeOfYear;
 }
 
-//var viewsHtml = filesystem.readFileSync("views.html").toString();
-/*
-TO QUERY A PARTICULAR ROW
-BASED OFF OF SELECTING FILTERS AND CLICKING SUBMIT
-var key = generateKeyFromRequest(req);
-	hclient.table(hbaseTableName).row(key).get((err, cells) => {
-		console.log('aha !')
-		console.log(cells);
-		//do addtl processing here
-
-		var html = mustache.render(viewsTemplate);
-		res.send(html);
-
-	})
-
-*/
+var resultViewHtml = filesystem.readFileSync("resultView.mustache").toString();
 
 app.use(express.static('public'));
 app.get('/', function (req, res) {
-	//loads the main screen, so populate the template with filter options
-	res.send(viewsHtml);
-	
-	//  const route=req.query['origin'] + req.query['dest'];
-    // console.log(route);
-	// hclient.table('weather_delays_by_route_v2').row(route).get(function (err, cells) {
-	// 	const weatherInfo = rowToMap(cells);
-	// 	console.log(weatherInfo)
-	// 	function weather_delay(weather) {
-	// 		var flights = weatherInfo["delay:" + weather + "_flights"];
-	// 		var delays = weatherInfo["delay:" + weather + "_delays"];
-	// 		if(flights == 0)
-	// 			return " - ";
-	// 		return (delays/flights).toFixed(1); /* One decimal place */
-	// 	}
+	//loads the main screen, so display prepopulated filter options
+	res.send(formViewHtml);
+});
+
+app.get('/getView', (req, res) => {
+	var key = generateKeyFromRequest(req);
+	hclient.table(hbaseTableName).row(key).get((err, cells) => {
+		if (!cells) {
+			res.send("<p>sorry but the query failed :(</p>");
+			return;
+		} 
+
+		var mostCommonWords = cells.
+			filter(x => x.column === 'stats:most_common_words').
+			map(x => x['$'])[0].
+			split(","); //map returns a list so we take the first (only) elem of that, then split on ","
 		
-	// 	var template = filesystem.readFileSync("result.mustache").toString();
-	// 	var html = mustache.render(template,  {
-	// 		origin : req.query['origin'],
-	// 		dest : req.query['dest'],
-	// 		clear_dly : weather_delay("clear"),
-	// 		fog_dly : weather_delay("fog"),
-	// 		rain_dly : weather_delay("rain"),
-	// 		snow_dly : weather_delay("snow"),
-	// 		hail_dly : weather_delay("hail"),
-	// 		thunder_dly : weather_delay("thunder"),
-	// 		tornado_dly : weather_delay("tornado")
-	// 	});
-	// 	res.send(html);
+		var leastCommonWords = cells.
+			filter(x => x.column === 'stats:least_common_words').
+			map(x => x['$'])[0].
+			split(","); //map returns a list so we take the first (only) elem of that, then split on ","
+		
+		var sentimentScoreSum = cells.
+			filter(x => x.column === 'stats:sentiment_score_sum').
+			map(x => x['$'])[0];
+		sentimentScoreSum = counterToNumber(sentimentScoreSum);
+
+		var sentimentScoreTotal = cells.
+			filter(x => x.column === 'stats:sentiment_score_total').
+			map(x => x['$'])[0];
+		sentimentScoreTotal = counterToNumber(sentimentScoreTotal);
+
+		var html = mustache.render(resultViewHtml, {
+			mcw: mostCommonWords.join(", "),
+			lcw: leastCommonWords.join(", "),
+			ss: ((sentimentScoreSum/sentimentScoreTotal)*100.0).toFixed(2).toString() + "%"
+		});
+		res.send(html);
+
+	})
 });
 
 /* Send simulated weather to kafka */
@@ -171,7 +181,6 @@ var Producer = kafka.Producer;
 var KeyedMessage = kafka.KeyedMessage;
 var kafkaClient = new kafka.KafkaClient({kafkaHost: process.argv[5]});
 var kafkaProducer = new Producer(kafkaClient);
-var counter = 0;
 
 app.post('/writeData', upload.single('recording'), function (req, res) {
 	
@@ -196,7 +205,6 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		recording: null // TODO: I should really just make a separate flow and kafka topic if it needs to wait for audio processing
 	};
 	console.log(report);
-	counter = counter + 1;
 	if (req.file) {
 		//upload audio file to s3
 		var filepath = prefix + req.file.filename;

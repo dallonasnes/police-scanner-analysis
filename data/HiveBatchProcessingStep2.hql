@@ -8,8 +8,8 @@ dept_name string,
 zone string,
 time_of_day string,
 season string,
-most_common_words array<string>,
-least_common_words array<string>,
+most_common_words string,
+least_common_words string,
 sentiment_score_sum bigint,
 sentiment_score_total bigint)
 STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'

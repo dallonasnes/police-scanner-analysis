@@ -133,7 +133,7 @@ var tmp = result.select("dept_name", "zone", "time_of_day", "date_of_event", "te
 // sc.parallelize(sc.parallelize(tmp).take(2)(0).split(" ").map(word => (word, 1))).reduceByKey(_+_).collect()
 
 val stop_words = sc.textFile("hdfs:///tmp/dasnes-final-project/sample-data/stop_words").collect().toArray
-case class Analysis(id: String, dept_name: String, zone: String, time_of_day: String, date_of_event: String, most_common_words: Array[String], least_common_words: Array[String], sent_score: BigInt, sent_count: BigInt)
+case class Analysis(id: String, dept_name: String, zone: String, time_of_day: String, date_of_event: String, most_common_words: String, least_common_words: String, sent_score: BigInt, sent_count: BigInt)
 //var counter = 0
 //for (arrOfStrs <- tmp){
 val addtlAnalysisFields = tmp.map({
@@ -144,8 +144,8 @@ val addtlAnalysisFields = tmp.map({
 	//now filter out the stop words
 	val filteredArr = arr.filter(kvp => kvp._1.length > 2).filter(kvp => !(stop_words contains kvp._1))
 
-	val top5Words = filteredArr.take(5).map(kvp => kvp._1).toArray
-	val least5Words = filteredArr.takeRight(5).map(kvp => kvp._1).toArray
+	val top5Words = filteredArr.take(5).map(kvp => kvp._1).toArray.mkString(",")
+	val least5Words = filteredArr.takeRight(5).map(kvp => kvp._1).toArray.mkString(",")
 
 	var sentScore = BigInt(1)
 	val sentCount = BigInt(arrOfStrs.text.length.toInt)
