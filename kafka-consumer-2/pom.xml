@@ -137,7 +137,15 @@
       <version>3.0.0</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
+	  <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-mllib -->
+	  <dependency>
+		  <groupId>org.apache.spark</groupId>
+		  <artifactId>spark-mllib_2.12</artifactId>
+		  <version>3.0.0</version>
+		  <scope>provided</scope>
+	  </dependency>
+
+	  <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-streaming-kafka-0-10_2.12</artifactId>
       <version>3.0.0</version>

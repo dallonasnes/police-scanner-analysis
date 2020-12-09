@@ -95,9 +95,8 @@ def amazon_transcribe(transcribe, audio_file_name, max_speakers=-1):
 
 if __name__ == "__main__":
     #test_filename = input("enter file path to upload")
-    #uploaded = upload_to_aws(test_filename, 'testing-police-scanner-audio', 'first_test.mp3')
+    uploaded = upload_to_aws("data/transcripts/starter_data_final_schema.csv", 'dasnes-mpcs53014', 'starter_data_final_schema.csv')
     #print(uploaded)
-    transcriber = get_transcriber()
-    res = amazon_transcribe(transcriber, "zone1.mp3", max_speakers=2)
-    import pdb; pdb.set_trace()
+    #transcriber = get_transcriber()
+    #res = amazon_transcribe(transcriber, "zone1.mp3", max_speakers=2)
     

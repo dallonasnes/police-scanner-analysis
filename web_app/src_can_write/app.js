@@ -88,34 +88,38 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 	var time = (req.body['time']) ? req.body['time'] : null;
 	var duration = (req.body['duration']) ? req.body['duration'] : null;
 	var text = (req.body['text']) ? req.body['text'] : null ;
+	
+	var date_ts = String(Date.now());
+	//TODO: I should really just hash the input to gen the random id
+	var id = "web_" + (date ? date : "_") + (time ? time : "_") + date_ts;
 	var report = {
-		zone_timestamp : "fromclient" + counter,
+		id : id,
 		dept_name : deptName,
 		zone : zone,
 		date : date,
 		time : time,
 		duration: duration,
 		text : text,
-		recording: null
+		recording: null // TODO: I should really just make a separate flow and kafka topic if it needs to wait for audio processing
 	};
 	console.log(report);
 	counter = counter + 1;
 	if (req.file) {
 		//upload audio file to s3
 		var filepath = prefix + req.file.filename;
-		console.log(filepath);
 		var fileStream = fs.createReadStream(filepath);
 		fileStream.on('error', function(err) {
 			console.log('File Error', err);
 		});		  
 		var uploadParams = {Bucket: bucket, Key: '', Body: ''};
 		uploadParams.Body = fileStream;
+		//TODO: should just make a hash, maybe same as before, to get the key
 		uploadParams.Key = "";
 		if (deptName) uploadParams.Key += deptName;
 		if (zone) uploadParams.Key += zone;
 		if (date) uploadParams.Key += date;
 		if (time) uploadParams.Key += time;
-		uploadParams.Key += "." + Date.now() + ".mp3";
+		uploadParams.Key += "." + date_ts + ".mp3";
 		console.log(uploadParams.Key)
 		report.recording = uploadParams.Key;
 		s3.upload(uploadParams, function (err, data) {

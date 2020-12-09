@@ -14,6 +14,19 @@ import org.apache.hadoop.hbase.client.ConnectionFactory
 import org.apache.hadoop.hbase.client.Put
 import org.apache.hadoop.hbase.util.Bytes
 
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.SparkContext._
+import org.apache.spark.sql._
+import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.PipelineModel
+import org.apache.spark.ml.classification.LogisticRegression
+import org.apache.spark.ml.tuning.ParamGridBuilder
+import org.apache.spark.ml.feature.{HashingTF, Tokenizer, CountVectorizer, RegexTokenizer, StopWordsRemover, IDF}
+
+import scala.math.pow
+import scala.collection.mutable
+
 case class ZoneTranscript(
                           zone_timestamp: String,
                           text: String)
@@ -27,6 +40,7 @@ object StreamWeather {
 
   val hbaseConnection = ConnectionFactory.createConnection(hbaseConf)
   val table = hbaseConnection.getTable(TableName.valueOf("dasnes_proj_csv_as_hbase"))
+  val model = PipelineModel.load("hdfs:///tmp/dasnes-final-project/sample-data/models/")
   
   def main(args: Array[String]) {
     if (args.length < 1) {
