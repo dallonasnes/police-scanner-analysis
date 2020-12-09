@@ -114,7 +114,7 @@ val result = mappedDf.groupBy("dept_name", "zone", "time_of_day", "date_of_event
 //var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].map(arr => arr.split(" ").map(word => (word, 1))))
 
 //this gives me an array of strings
-var tmp = result.select("text").collect().map(x => x(1).asInstanceOf[Seq[String]].mkString(" "))
+var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].mkString(" "))
 
 //this one works -- assuming no split in the above line
 //var newTmp = sc.parallelize(tmp).map( sent => sent.split(" ").map(word => (word, 1)))
