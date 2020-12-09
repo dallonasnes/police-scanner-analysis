@@ -59,9 +59,12 @@ val schema = new StructType().
 
 */
 
+//now need to get rid of any null possibility in the sourceData
+val validatedData = sourceData.filter(col("dept_name").isNotNull).filter(col("zone").isNotNull).filter(col("time_of_day").isNotNull).filter(col("date_of_event").isNotNull).filter(col("duration").isNotNull).filter(col("text").isNotNull)
+
 //first i have to convert input from time into time_of_day (morn, eve, etc)
 //and convert date into season
-var mappedRdd = sourceData.rdd.map(row => {
+var mappedRdd = validatedData.rdd.map(row => {
        var tod = row.getAs[String](3).take(2).toInt
        var tod_str = ""
        if (tod >= 0 && tod < 6) {tod_str = "latenight"}
@@ -76,7 +79,7 @@ var mappedRdd = sourceData.rdd.map(row => {
        else if (date_region <= 9) season = "summer"
        else season = "fall"
        Row(row(0), row(1), row(2), tod_str, season, row(5), row.getAs[String](6).split(" ").map(_.replaceAll("[,.!?:;)( \t\n]", "").trim.toLowerCase).
-filter(!_.isEmpty).filter(_.length > 2)) })
+filter(!_.isEmpty).filter(_.length > 2).mkString(" ")) })
 
 val schema = new StructType().
   add(StructField("id", StringType, false)).
@@ -85,20 +88,14 @@ val schema = new StructType().
   add(StructField("time_of_day", StringType, true)).
   add(StructField("date_of_event", StringType, true)).
   add(StructField("duration", DoubleType, true)).
-  add(StructField("text", ArrayType(StringType), false))
+  add(StructField("text", StringType, false))
 
 var mappedDf = spark.createDataFrame(mappedRdd, schema)
 
-//now aggregate together all of the texts
-//for the same dept_name, zone, time_of_day and date_of_event
-//val result = mappedDf.groupBy("dept_name", "zone", "time_of_day", "date_of_event").agg(concat_ws(" ", collect_list(when($"text".isNull, "").otherwise($"text")) as "text"))
+//now aggregate together all of the texts 
+val result = mappedDf.groupBy("dept_name", "zone", "time_of_day", "date_of_event").agg(collect_list("text"))
 
-//val result = mappedDf.groupBy("dept_name", "zone", "time_of_day", "date_of_event").agg(collect_list("text") as "text")
-
-//val result = mappedDf.agg(collect_list("text") as "text")
-
-// NOW show most and least common words by district
-
+// NOW show most and least common words by zone
 
 
 /*
