@@ -37,29 +37,6 @@ sentiment_score_sum bigint,
 sentiment_score_total bigint
 */
 
-/*
-
-do this in a second new DF
-then i make a new DF grouping by those two props
-and concat all the text strings
-
-^ that will be done with hive queries
-
-then for each row in the new df
-get common words and sentiment scores
-
-
-val schema = new StructType().
-  add(StructField("id", StringType, false)).
-  add(StructField("dept_name", StringType, true)).
-  add(StructField("zone", StringType, true)).
-  add(StructField("time_of_day", StringType, true)).
-  add(StructField("date_of_event", StringType, true)).
-  add(StructField("duration", DoubleType, true)).
-  add(StructField("text", StringType, true))
-
-*/
-
 //now need to get rid of any null possibility in the sourceData
 val validatedData = sourceData.filter(col("dept_name").isNotNull).
 	filter(col("zone").isNotNull).filter(col("time_of_day").isNotNull).
@@ -98,22 +75,7 @@ var mappedDf = spark.createDataFrame(mappedRdd, schema)
 
 //now aggregate together all of the texts 
 val result = mappedDf.groupBy("dept_name", "zone", "time_of_day", "date_of_event").agg(collect_list("text").as("text"))
-/*val validatedResult = result.filter(col("dept_name").isNotNull).
-	filter(col("zone").isNotNull).filter(col("time_of_day").isNotNull).
-	filter(col("date_of_event").isNotNull).
-	filter(col("text").isNotNull)*/
-// NOW show most and least common words by zone
 
-//fixes it
-// each row in the dataframe is Array[String]
-
-// this seems to work but has a long runtime
-//var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].map(arr => sc.parallelize(arr.split(" ").map(word => (word, 1))).reduceByKey(_+_)))
-
-// also working but not well
-//var tmp = result.select("text").collect().map(x => x(0).asInstanceOf[Seq[String]].map(arr => arr.split(" ").map(word => (word, 1))))
-
-//TODO : need to find out if the below operation retains order
 //this gives me an array of array of strings
 case class BaseData(id: String, dept_name: String, zone: String, time_of_day: String, date_of_event: String, text: Array[String])
 var tmp = result.select("dept_name", "zone", "time_of_day", "date_of_event", "text").collect().map(x => new BaseData(x(0).asInstanceOf[String] + x(1).asInstanceOf[String] + x(2).asInstanceOf[String] + x(3).asInstanceOf[String], x(0).asInstanceOf[String], x(1).asInstanceOf[String], x(2).asInstanceOf[String], x(3).asInstanceOf[String], x(4).asInstanceOf[Seq[String]].toArray))
@@ -170,17 +132,5 @@ val addtlAnalysisFields_asDF = sc.parallelize(addtlAnalysisFields).toDF
 
 //now we have the full dataset that we want to write out to hive
 addtlAnalysisFields_asDF.write.mode(SaveMode.Overwrite).saveAsTable("dasnes_view_as_hive")
-
-/*
-id string,
-dept_name string,
-zone string,
-time_of_day string
-season string,
-most_common_words string,
-least_common_words string,
-sentiment_score_sum bigint,
-sentiment_score_total bigint
-*/
 
 
