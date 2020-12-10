@@ -11,13 +11,14 @@ const bucket = 'dasnes-mpcs53014'
 var fs = require('fs');
 var path = require('path');
 var AWS = require('aws-sdk');
-// const {
-// 	TranscribeClient,
-// 	StartTranscriptionJobCommand,
-//   } = require("@aws-sdk/client-transcribe");
+const {
+	TranscribeClient,
+	StartTranscriptionJobCommand,
+  } = require("@aws-sdk/client-transcribe");
 
-// const transcriber = new TranscribeClient({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
+const transcriber = new TranscribeClient({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
 AWS.config.update({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
+
 var s3 = new AWS.S3();
 const multer = require('multer');
 const prefix = 'uploads/';
@@ -188,6 +189,10 @@ var kafkaClient = new kafka.KafkaClient({kafkaHost: process.argv[5]});
 var kafkaProducer = new Producer(kafkaClient);
 
 app.post('/writeData', upload.single('recording'), function (req, res) {
+
+	// we send our response immediately because our processing can be slow
+	res.redirect('submit.html');
+
 	var deptName = (req.body['deptName']) ? req.body['deptName'] : null;
 	var zone = (req.body['zone']) ? req.body['zone'] : null;
 	var date = (req.body['date']) ? req.body['date'] : null;
@@ -206,14 +211,14 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		time : time,
 		duration: duration,
 		text : text,
-		recording: null // TODO: I should really just make a separate flow and kafka topic if it needs to wait for audio processing
+		recording: false // TODO: I should really just make a separate flow and kafka topic if it needs to wait for audio processing
 	};
 
 	// as of now we can't process if any of the required fields are null
-	if (!report.id || !report.dept_name || !report.zone || !report.date || !report.time || !report.duration || !report.text){
-		console.log("can't use this data because it has null fields.");
-		return;
-	}
+	// if (!report.id || !report.dept_name || !report.zone || !report.date || !report.time || !report.duration || !report.text){
+	// 	console.log("can't use this data because it has null fields.");
+	// 	return;
+	// }
 
 	if (req.file) {
 		//upload audio file to s3
@@ -231,7 +236,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		if (date) uploadParams.Key += date;
 		if (time) uploadParams.Key += time;
 		uploadParams.Key += "." + date_ts + ".mp3";
-		report.recording = uploadParams.Key;
+		report.recording = true;
 		s3.upload(uploadParams, async function (err, data) {
 			if (err) console.log("Error", err);
 			if (data) {
@@ -244,18 +249,23 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 					}
 				});
 
+				const transcriptionJobName = "foo";
+
 				// TODO: now kick off transcription job
-				// const transcriptionData = await transcriber.send(new StartTranscriptionJobCommand({
-				// 	TranscriptionJobName: job_name,
-				// 	Media: {'MediaFileUri': job_uri},
-				// 	MediaFormat: audio_file_name.split('.')[1],
-				// 	LanguageCode: 'en-US',
-				// 	Settings: {'ShowSpeakerLabels': True
-				// 			},
-				// 	OutputBucketName: 'dasnes-mpcs53014'
-				// }), (err, data) => {
-				// 	console.log("in transcribe callback");
-				// })
+				const params = {
+					TranscriptionJobName: transcriptionJobName,
+					LanguageCode: 'en-US',
+					MediaFormat: "mp3", // TODO: make this generic
+					Media: {
+						MediaFileUri: "s3://" + bucket + "/" + uploadParams.Key
+					}
+				};
+
+				transcriber.send(new StartTranscriptionJobCommand(params), (data, err) => {
+					console.log(err);
+					console.log(data);
+					console.log("we're in the transcriber callback");
+				});
 				// TODO: await transcription job
 				// TODO: parse text from transcription
 				// TODO: then post to the same kafka topic
@@ -300,8 +310,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		  console.log(JSON.stringify(err) + " " + JSON.stringify(data));
 		}
 	  );
-
-	res.redirect('submit.html');
+	
 });
 
 app.listen(port);
