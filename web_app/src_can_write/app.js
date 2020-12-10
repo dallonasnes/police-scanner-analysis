@@ -11,6 +11,12 @@ const bucket = 'dasnes-mpcs53014'
 var fs = require('fs');
 var path = require('path');
 var AWS = require('aws-sdk');
+// const {
+// 	TranscribeClient,
+// 	StartTranscriptionJobCommand,
+//   } = require("@aws-sdk/client-transcribe");
+
+// const transcriber = new TranscribeClient({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
 AWS.config.update({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
 var s3 = new AWS.S3();
 const multer = require('multer');
@@ -42,11 +48,13 @@ var htmlViewTop = `<!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">
     <link type="text/css" rel="stylesheet" href="table.css" />
   </head>
   <body>
+  <h1>View profile of speech recordings</h1>
   <div>
   <form action="/getView" method="get" style="background:#FFFFFF;width:60%;margin:auto" class="elegant-aero">
   `;
 
 var htmlViewBottom = `<button type="submit">Submit</button></form></div>
+<div><br><button onclick="window.location.href = '/submit.html'">Upload your own police interaction</button></div>
 </body></html>`;
 
 
@@ -141,7 +149,7 @@ app.get('/getView', (req, res) => {
 	var key = generateKeyFromRequest(req);
 	hclient.table(hbaseTableName).row(key).get((err, cells) => {
 		if (!cells) {
-			res.send("<p>sorry but the query failed :(</p>");
+			res.send("<p>sorry but the hbase query failed :(</p>");
 			return;
 		} 
 
@@ -171,19 +179,15 @@ app.get('/getView', (req, res) => {
 			ss: ((sentimentScoreSum/sentimentScoreTotal)*100.0).toFixed(2).toString() + "%"
 		});
 		res.send(html);
-
 	})
 });
 
-/* Send simulated weather to kafka */
 var kafka = require('kafka-node');
 var Producer = kafka.Producer;
-var KeyedMessage = kafka.KeyedMessage;
 var kafkaClient = new kafka.KafkaClient({kafkaHost: process.argv[5]});
 var kafkaProducer = new Producer(kafkaClient);
 
 app.post('/writeData', upload.single('recording'), function (req, res) {
-	
 	var deptName = (req.body['deptName']) ? req.body['deptName'] : null;
 	var zone = (req.body['zone']) ? req.body['zone'] : null;
 	var date = (req.body['date']) ? req.body['date'] : null;
@@ -204,7 +208,13 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		text : text,
 		recording: null // TODO: I should really just make a separate flow and kafka topic if it needs to wait for audio processing
 	};
-	console.log(report);
+
+	// as of now we can't process if any of the required fields are null
+	if (!report.id || !report.dept_name || !report.zone || !report.date || !report.time || !report.duration || !report.text){
+		console.log("can't use this data because it has null fields.");
+		return;
+	}
+
 	if (req.file) {
 		//upload audio file to s3
 		var filepath = prefix + req.file.filename;
@@ -221,9 +231,8 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		if (date) uploadParams.Key += date;
 		if (time) uploadParams.Key += time;
 		uploadParams.Key += "." + date_ts + ".mp3";
-		console.log(uploadParams.Key)
 		report.recording = uploadParams.Key;
-		s3.upload(uploadParams, function (err, data) {
+		s3.upload(uploadParams, async function (err, data) {
 			if (err) console.log("Error", err);
 			if (data) {
 				console.log("Uploaded in:", data.Location);
@@ -233,13 +242,29 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 						console.log(err);
 						console.log("failed to remove file at path: " + filepath);
 					}
-				})
+				});
+
+				// TODO: now kick off transcription job
+				// const transcriptionData = await transcriber.send(new StartTranscriptionJobCommand({
+				// 	TranscriptionJobName: job_name,
+				// 	Media: {'MediaFileUri': job_uri},
+				// 	MediaFormat: audio_file_name.split('.')[1],
+				// 	LanguageCode: 'en-US',
+				// 	Settings: {'ShowSpeakerLabels': True
+				// 			},
+				// 	OutputBucketName: 'dasnes-mpcs53014'
+				// }), (err, data) => {
+				// 	console.log("in transcribe callback");
+				// })
+				// TODO: await transcription job
+				// TODO: parse text from transcription
+				// TODO: then post to the same kafka topic
 
 				//now post to kafka topic that audio was uploaded
 				kafkaProducer.send([{ topic: 'topic_dasnes_web_upload_with_audio', messages: JSON.stringify(report)}],
 					function (err, data) {
 						console.log("post to kafka after successful upload to s3");
-						console.log("Kafka Error: " + err)
+						console.log("Kafka Error: " + err);
 						console.log(data);
 						console.log(report);
 					});
@@ -252,7 +277,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		kafkaProducer.send([{ topic: 'topic_dasnes_web_upload_no_audio', messages: JSON.stringify(report)}],
 			function (err, data) {
 				console.log("no audio file in upload");
-				console.log("Kafka Error: " + err)
+				console.log("Kafka Error: " + err);
 				console.log(data);
 				console.log(report);
 			});
@@ -276,7 +301,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		}
 	  );
 
-	res.redirect('submit-weather.html');
+	res.redirect('submit.html');
 });
 
 app.listen(port);

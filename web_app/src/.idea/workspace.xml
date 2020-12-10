@@ -20,10 +20,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d5f0979-71e3-4e7f-ba22-efc7e8a34aff" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../data/BatchViewsPipeline.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../data/BatchViewsPipeline.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../data/HiveBatchProcessingStep2.hql" beforeDir="false" afterPath="$PROJECT_DIR$/../../data/HiveBatchProcessingStep2.hql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/web-text-input-kafka-consumer.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../deploy/bin/before_install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../deploy/bin/before_install.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../deploy/deploy.zip" beforeDir="false" afterPath="$PROJECT_DIR$/../deploy/deploy.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../deploy/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/../deploy/src/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../deploy/src/public/submit-weather.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src_can_write/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/../src_can_write/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src_can_write/public/submit-weather.html" beforeDir="false" afterPath="$PROJECT_DIR$/../src_can_write/public/submit.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +54,9 @@
     <option name="version" value="1" />
   </component>
   <component name="ProjectId" id="1k8MiaIBnOr3bvUkfhhae4HgY3Y" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -58,7 +64,6 @@
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
