@@ -11,14 +11,14 @@ const bucket = 'dasnes-mpcs53014'
 var fs = require('fs');
 var path = require('path');
 var AWS = require('aws-sdk');
-const {
-	TranscribeClient,
-	StartTranscriptionJobCommand,
-  } = require("@aws-sdk/client-transcribe");
+// const {
+// 	TranscribeClient,
+// 	StartTranscriptionJobCommand,
+//   } = require("@aws-sdk/client-transcribe");
 
-const transcriber = new TranscribeClient({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
+// const transcriber = new TranscribeClient({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
 AWS.config.update({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
-
+const transcriber = new AWS.TranscribeService();
 var s3 = new AWS.S3();
 const multer = require('multer');
 const prefix = 'uploads/';
@@ -215,10 +215,10 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 	};
 
 	// as of now we can't process if any of the required fields are null
-	// if (!report.id || !report.dept_name || !report.zone || !report.date || !report.time || !report.duration || !report.text){
-	// 	console.log("can't use this data because it has null fields.");
-	// 	return;
-	// }
+	if (!report.id || !report.dept_name || !report.zone || !report.date || !report.time || !report.duration || !report.text){
+		console.log("can't use this data because it has null fields.");
+		return;
+	}
 
 	if (req.file) {
 		//upload audio file to s3
@@ -261,13 +261,17 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 					}
 				};
 
-				transcriber.send(new StartTranscriptionJobCommand(params), (data, err) => {
-					console.log(err);
-					console.log(data);
-					console.log("we're in the transcriber callback");
-				});
+				// transcriber.send(new StartTranscriptionJobCommand(params), (data, err) => {
+				// 	console.log(err);
+				// 	console.log(data);
+				// 	console.log("we're in the transcriber callback");
+				// 	// now poll to see when our job is ready
+				// });
 				// TODO: await transcription job
 				// TODO: parse text from transcription
+
+				// TODO: then upload just transcription + metadata to S3 for batch layer ingestion
+
 				// TODO: then post to the same kafka topic
 
 				//now post to kafka topic that audio was uploaded
@@ -284,6 +288,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		});
 
 	} else {
+		console.log(JSON.stringify(report));
 		kafkaProducer.send([{ topic: 'topic_dasnes_web_upload_no_audio', messages: JSON.stringify(report)}],
 			function (err, data) {
 				console.log("no audio file in upload");

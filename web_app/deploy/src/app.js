@@ -11,7 +11,14 @@ const bucket = 'dasnes-mpcs53014'
 var fs = require('fs');
 var path = require('path');
 var AWS = require('aws-sdk');
+// const {
+// 	TranscribeClient,
+// 	StartTranscriptionJobCommand,
+//   } = require("@aws-sdk/client-transcribe");
+
+// const transcriber = new TranscribeClient({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
 AWS.config.update({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
+const transcriber = new AWS.TranscribeService();
 var s3 = new AWS.S3();
 const multer = require('multer');
 const prefix = 'uploads/';
@@ -182,6 +189,10 @@ var kafkaClient = new kafka.KafkaClient({kafkaHost: process.argv[5]});
 var kafkaProducer = new Producer(kafkaClient);
 
 app.post('/writeData', upload.single('recording'), function (req, res) {
+
+	// we send our response immediately because our processing can be slow
+	res.redirect('submit.html');
+
 	var deptName = (req.body['deptName']) ? req.body['deptName'] : null;
 	var zone = (req.body['zone']) ? req.body['zone'] : null;
 	var date = (req.body['date']) ? req.body['date'] : null;
@@ -200,9 +211,15 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		time : time,
 		duration: duration,
 		text : text,
-		recording: null // TODO: I should really just make a separate flow and kafka topic if it needs to wait for audio processing
+		recording: false // TODO: I should really just make a separate flow and kafka topic if it needs to wait for audio processing
 	};
-	console.log(report);
+
+	// as of now we can't process if any of the required fields are null
+	if (!report.id || !report.dept_name || !report.zone || !report.date || !report.time || !report.duration || !report.text){
+		console.log("can't use this data because it has null fields.");
+		return;
+	}
+
 	if (req.file) {
 		//upload audio file to s3
 		var filepath = prefix + req.file.filename;
@@ -219,9 +236,8 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		if (date) uploadParams.Key += date;
 		if (time) uploadParams.Key += time;
 		uploadParams.Key += "." + date_ts + ".mp3";
-		console.log(uploadParams.Key)
-		report.recording = uploadParams.Key;
-		s3.upload(uploadParams, function (err, data) {
+		report.recording = true;
+		s3.upload(uploadParams, async function (err, data) {
 			if (err) console.log("Error", err);
 			if (data) {
 				console.log("Uploaded in:", data.Location);
@@ -231,13 +247,38 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 						console.log(err);
 						console.log("failed to remove file at path: " + filepath);
 					}
-				})
+				});
+
+				const transcriptionJobName = "foo";
+
+				// TODO: now kick off transcription job
+				const params = {
+					TranscriptionJobName: transcriptionJobName,
+					LanguageCode: 'en-US',
+					MediaFormat: "mp3", // TODO: make this generic
+					Media: {
+						MediaFileUri: "s3://" + bucket + "/" + uploadParams.Key
+					}
+				};
+
+				// transcriber.send(new StartTranscriptionJobCommand(params), (data, err) => {
+				// 	console.log(err);
+				// 	console.log(data);
+				// 	console.log("we're in the transcriber callback");
+				// 	// now poll to see when our job is ready
+				// });
+				// TODO: await transcription job
+				// TODO: parse text from transcription
+
+				// TODO: then upload just transcription + metadata to S3 for batch layer ingestion
+
+				// TODO: then post to the same kafka topic
 
 				//now post to kafka topic that audio was uploaded
 				kafkaProducer.send([{ topic: 'topic_dasnes_web_upload_with_audio', messages: JSON.stringify(report)}],
 					function (err, data) {
 						console.log("post to kafka after successful upload to s3");
-						console.log("Kafka Error: " + err)
+						console.log("Kafka Error: " + err);
 						console.log(data);
 						console.log(report);
 					});
@@ -250,7 +291,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		kafkaProducer.send([{ topic: 'topic_dasnes_web_upload_no_audio', messages: JSON.stringify(report)}],
 			function (err, data) {
 				console.log("no audio file in upload");
-				console.log("Kafka Error: " + err)
+				console.log("Kafka Error: " + err);
 				console.log(data);
 				console.log(report);
 			});
@@ -273,8 +314,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		  console.log(JSON.stringify(err) + " " + JSON.stringify(data));
 		}
 	  );
-
-	res.redirect('submit.html');
+	
 });
 
 app.listen(port);

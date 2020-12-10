@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-transcribe": "^1.0.0-rc.8",
     "aws-sdk": "^2.804.0",
     "express": "^4.17.1",
     "hbase": "^0.6.1",

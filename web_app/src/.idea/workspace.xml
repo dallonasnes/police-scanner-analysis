@@ -22,14 +22,18 @@
     <list default="true" id="3d5f0979-71e3-4e7f-ba22-efc7e8a34aff" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/../../data/IngestionPipeline.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../data/IngestionPipeline.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/src/main/scala/ProcessLiveWebInput.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/src/main/scala/ProcessLiveWebInput.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/src/main/scala/SpeechAnalysis.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/src/main/scala/SpeechAnalysis.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/analysis/compile" beforeDir="false" afterPath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/analysis/compile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/classes/ProcessLiveWebInput$.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/classes/ProcessLiveWebInput$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/classes/WebInput$.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/classes/WebInput$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/classes/WebInput.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/classes/WebInput.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/uber-web-text-input-kafka-consumer-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/uber-web-text-input-kafka-consumer-1.0-SNAPSHOT.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/web-text-input-kafka-consumer-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../../web-text-input-kafka-consumer/target/web-text-input-kafka-consumer-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../deploy/deploy.zip" beforeDir="false" afterPath="$PROJECT_DIR$/../deploy/deploy.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../deploy/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/../deploy/src/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../deploy/src/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../deploy/src/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src_can_write/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/../src_can_write/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src_can_write/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../src_can_write/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src_can_write/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../src_can_write/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

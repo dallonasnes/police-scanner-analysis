@@ -55,10 +55,9 @@ object ProcessLiveWebInput {
 
     // Create context with 2 second batch interval
     val sparkConf = new SparkConf().setAppName("dasnes_ProcessLiveWebInput")
-    //val sc = new SparkContext(sparkConf)
     val ssc = new StreamingContext(sparkConf, Seconds(2))
-    //val spark: org.apache.spark.sql.SparkSession = org.apache.spark.sql.SparkSession.active
-    //import spark.implicits._
+    val spark = SparkSession.builder().getOrCreate()
+    import spark.implicits._
 
     val trainedModel = PipelineModel.load("hdfs:///tmp/dasnes-final-project/sample-data/models/")
 
@@ -104,20 +103,38 @@ object ProcessLiveWebInput {
 
       // now do inference
       // then can increment score sum too
-      val myArr = Array(wi.text)
-      //val inpDF = sc.parallelize(myArr).toDF("text")
-      var prediction = 0
-      // prediction = trainedModel.transform(inpDF.withColumnRenamed("text", "review")).select("prediction").take(1)(0)(0).asInstanceOf[Double].toInt
 
-      //each prediction is 1 or 0
-      if (prediction > 0){
-        table.incrementColumnValue(
-          rowKey.getBytes,
-          "stats".getBytes,
-          "sentiment_score_sum".getBytes,
-          1
-        )
-      }
+      var prediction = 0
+//      if (wi.text.isEmpty || Option(wi.text) != null || wi.text != null) {
+//          val myArr = Array(wi.text)
+//          val tmpRdd = spark.sparkContext.parallelize(myArr)
+//          if (tmpRdd != null) {
+//            val inpDF = tmpRdd.toDF("text")
+//            //here let's try to filter out none
+//            if (inpDF != null) {
+//              val intermed = trainedModel.transform(inpDF.withColumnRenamed("text", "review"))
+//
+//              if (intermed != null){
+//                val tmp = intermed.select("prediction").take(1)
+//                if (tmp != null) {
+//                  if (tmp(0) != null && tmp(0)(0) != null){
+//                    prediction = tmp(0)(0).asInstanceOf[Double].toInt
+//                  }
+//                }
+//              }
+//            }
+//          }
+//
+//          //each prediction is 1 or 0
+//          if (prediction > 0){
+//            table.incrementColumnValue(
+//              rowKey.getBytes,
+//              "stats".getBytes,
+//              "sentiment_score_sum".getBytes,
+//              1
+//            )
+//          }
+//      }
 
       table.incrementColumnValue(
         rowKey.getBytes,

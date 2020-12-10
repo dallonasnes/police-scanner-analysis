@@ -19,5 +19,5 @@ case class WebInput(
      time: String,
      duration: Double,
      text: String,
-     recording: String
+     recording: Boolean
    )
