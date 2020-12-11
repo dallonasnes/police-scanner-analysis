@@ -24,11 +24,11 @@ def get_transcriber():
     transcribe = boto3.client('transcribe',
                             aws_access_key_id=ACCESS_KEY,
                             aws_secret_access_key=SECRET_KEY,
-                            region_name="us-east-1"
+                            region_name="us-east-2"
     )
     return transcribe
 
-#methods taken from: https://colab.research.google.com/drive/1oaS1dOj5kkzx9Q8YRZd54AGHzrQEqg_9#scrollTo=RNfgzRWvrwBq
+#methods inspired by: https://colab.research.google.com/drive/1oaS1dOj5kkzx9Q8YRZd54AGHzrQEqg_9#scrollTo=RNfgzRWvrwBq
 def check_job_name(transcribe, job_name):
   job_verification = True
 
@@ -66,10 +66,10 @@ def amazon_transcribe(transcribe, audio_file_name, max_speakers=-1):
     transcribe.start_transcription_job(
         TranscriptionJobName=job_name,
         Media={'MediaFileUri': job_uri},
-        MediaFormat=audio_file_name.split('.')[1],
+        MediaFormat='mp3',#audio_file_name.split('.')[1],
         LanguageCode='en-US',
-        Settings = {'ShowSpeakerLabels': True,
-                  'MaxSpeakerLabels': max_speakers
+        Settings={'ShowSpeakerLabels': True,
+                    'MaxSpeakerLabels': max_speakers
                   },
         OutputBucketName='dasnes-mpcs53014'
     )
@@ -77,26 +77,23 @@ def amazon_transcribe(transcribe, audio_file_name, max_speakers=-1):
     transcribe.start_transcription_job(
         TranscriptionJobName=job_name,
         Media={'MediaFileUri': job_uri},
-        MediaFormat=audio_file_name.split('.')[1],
+        MediaFormat='mp3', #audio_file_name.split('.')[1],
         LanguageCode='en-US',
-        Settings = {'ShowSpeakerLabels': True
+        Settings={'ShowSpeakerLabels': True,
+                  'MaxSpeakerLabels': 2
                   },
         OutputBucketName='dasnes-mpcs53014'
-    )    
-  
-  while True:
-    result = transcribe.get_transcription_job(TranscriptionJobName=job_name)
-    if result['TranscriptionJob']['TranscriptionJobStatus'] in ['COMPLETED', 'FAILED']:
-        break
-    time.sleep(15)
-  if result['TranscriptionJob']['TranscriptionJobStatus'] == 'COMPLETED':
-    data = pd.read_json(result['TranscriptionJob']['Transcript']['TranscriptFileUri'])
-  return result
+    )
+
+
+  time.sleep(1)
+  return transcribe.get_transcription_job(TranscriptionJobName=job_name)
 
 if __name__ == "__main__":
-    #test_filename = input("enter file path to upload")
-    uploaded = upload_to_aws("data/transcripts/starter_data_final_schema.csv", 'dasnes-mpcs53014', 'starter_data_final_schema.csv')
-    #print(uploaded)
-    #transcriber = get_transcriber()
-    #res = amazon_transcribe(transcriber, "zone1.mp3", max_speakers=2)
+      pass
+      #test_filename = input("enter file path to upload")
+      #uploaded = upload_to_aws("data/transcripts/starter_data_final_schema.csv", 'dasnes-mpcs53014', 'starter_data_final_schema.csv')
+      #print(uploaded)
+      #transcriber = get_transcriber()
+      #res = amazon_transcribe(transcriber, "zone1.mp3", max_speakers=2)
     

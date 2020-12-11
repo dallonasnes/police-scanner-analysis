@@ -40,6 +40,10 @@ object ProcessLiveWebInput {
   //all that this program does is update the sentiment analysis score in the hbase table
   val hbaseConnection = ConnectionFactory.createConnection(hbaseConf)
   val table = hbaseConnection.getTable(TableName.valueOf("dasnes_view_as_hbase"))
+  val spark = SparkSession.builder().getOrCreate()
+  val sc = spark.sparkContext
+  val ssc = new StreamingContext(sc, Seconds(2))
+  import spark.implicits._
 
   def main(args: Array[String]) {
     if (args.length < 1) {
@@ -52,12 +56,6 @@ object ProcessLiveWebInput {
     }
 
     val Array(brokers) = args
-
-    // Create context with 2 second batch interval
-    val sparkConf = new SparkConf().setAppName("dasnes_ProcessLiveWebInput")
-    val ssc = new StreamingContext(sparkConf, Seconds(2))
-    val spark = SparkSession.builder().getOrCreate()
-    import spark.implicits._
 
     val trainedModel = PipelineModel.load("hdfs:///tmp/dasnes-final-project/sample-data/models/")
 
@@ -105,36 +103,43 @@ object ProcessLiveWebInput {
       // then can increment score sum too
 
       var prediction = 0
-//      if (wi.text.isEmpty || Option(wi.text) != null || wi.text != null) {
-//          val myArr = Array(wi.text)
-//          val tmpRdd = spark.sparkContext.parallelize(myArr)
-//          if (tmpRdd != null) {
-//            val inpDF = tmpRdd.toDF("text")
-//            //here let's try to filter out none
-//            if (inpDF != null) {
-//              val intermed = trainedModel.transform(inpDF.withColumnRenamed("text", "review"))
-//
-//              if (intermed != null){
-//                val tmp = intermed.select("prediction").take(1)
-//                if (tmp != null) {
-//                  if (tmp(0) != null && tmp(0)(0) != null){
-//                    prediction = tmp(0)(0).asInstanceOf[Double].toInt
-//                  }
-//                }
-//              }
-//            }
-//          }
-//
-//          //each prediction is 1 or 0
-//          if (prediction > 0){
-//            table.incrementColumnValue(
-//              rowKey.getBytes,
-//              "stats".getBytes,
-//              "sentiment_score_sum".getBytes,
-//              1
-//            )
-//          }
-//      }
+      if (!(wi.text.isEmpty || Option(wi.text) == null || wi.text == null)) {
+          //val myArr = Array(wi.text)
+          println(wi.text)
+          if (spark == null){
+            println("spark is null")
+          }else if( sc == null){
+            println("context's null!")
+          }
+          val tmpRdd = sc.parallelize(List(wi.text))
+          //val tmpRdd = null
+          if (tmpRdd != null) {
+            val inpDF = tmpRdd.toDF("text")
+            //here let's try to filter out none
+            if (inpDF != null) {
+              val intermed = trainedModel.transform(inpDF.withColumnRenamed("text", "review"))
+
+              if (intermed != null){
+                val tmp = intermed.select("prediction").take(1)
+                if (tmp != null) {
+                  if (tmp(0) != null && tmp(0)(0) != null){
+                    prediction = tmp(0)(0).asInstanceOf[Double].toInt
+                  }
+                }
+              }
+            }
+          }
+
+          //each prediction is 1 or 0
+          if (prediction > 0){
+            table.incrementColumnValue(
+              rowKey.getBytes,
+              "stats".getBytes,
+              "sentiment_score_sum".getBytes,
+              1
+            )
+          }
+      }
 
       table.incrementColumnValue(
         rowKey.getBytes,
