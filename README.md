@@ -6,7 +6,7 @@ This project performs real-time speech content analyses on audio recordings of p
 
 It is an implementation of the lambda architecture. Batch layer processing includes processing source truth data - transcripts of police scanner recordings and metadata - in Hive and analyzing it in Spark. The serving layer is implemented with hbase and serves precomputed views to a node.js web server that then renders views on a web client. The speed layer includes a pipeline managing real-time transcription of new audio recordings, lambda functions that send messages to kafka topics when transcription of a recording has finished, and a Spark kafka-consumer that runs Sentiment Analysis inference on the transcriptions of recordings and updates statistics in hbase in real time.
 
-Demo video and walkthrough at this link: 
+Demo video and walkthrough at this link: https://youtu.be/PHhb9FtWUL8
 
 ### How to run on AWS EMR Cluster
 
