@@ -1,5 +1,3 @@
-// id | dept name | zone | time of day | date of event | duration | text
-
 create external table dasnes_source_from_csv (
 id string,
 dept_name string,
@@ -15,11 +13,9 @@ WITH SERDEPROPERTIES (
    "quoteChar"     = "\""
 )
 STORED AS TEXTFILE
-  location '/tmp/dasnes-final-project/sample-data/starter-data-final-schema/'; //note that it must point to directory that holds your input data
+  location '/tmp/dasnes-final-project/sample-data/starter-data-final-schema/';
 
-//now insert all of this into orc
-
-create table dasnes_source_from_csv_as_orc(
+create table dasnes_source_from_csv_as_orc (
 id string,
 dept_name string,
 zone string,
