@@ -18,7 +18,7 @@ import os
 import sys
 from shutil import rmtree
 import time
-
+from datetime import date, datetime
 from secrets import BROADCASTIFY_USERNAME, BROADCASTIFY_PW
 
 class Audio:
@@ -32,7 +32,8 @@ class Audio:
         self.event.set()
 
     def download_file(self):
-        self.local_filename = self.url.split('/')[-1].split('.')[0] + "-" + str(time.time()) + ".mp3"
+        today = datetime.now()
+        self.local_filename = str(today.day) + str(today.month) + str(today.year) + str(today.hour) + str(today.minute) + str(today.second) + "." + self.dept_name + "." + self.zone_name + "." + str(time.time()) + ".mp3"
         # NOTE the stream=True parameter below
         with requests.get(self.url, stream=True, auth=HTTPBasicAuth(BROADCASTIFY_USERNAME, BROADCASTIFY_PW)) as r:
             #TODO: how to handle request failures here?
@@ -58,8 +59,8 @@ if __name__ == "__main__":
         t.daemon = True
         t.start()
 
-        # wait 30 seconds for the thread to finish its work
-        t.join(5)
+        # wait 60 seconds for the thread to finish its work
+        t.join(60)
         aud.set_event()
         print("uploading file to aws bucket")
         upload_to_aws(aud.local_filename, "dasnes-mpcs53014", aud.local_filename)
