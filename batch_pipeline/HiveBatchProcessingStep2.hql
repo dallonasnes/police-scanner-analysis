@@ -1,5 +1,6 @@
-//create hbase table
-create 'dasnes_view_as_hbase', 'stats'
+// first must create hbase table
+// use this command in an hbase shell to do so
+// create 'dasnes_view_as_hbase', 'stats'
 
 //then create it in hive
 create external table dasnes_view_as_hbase(
