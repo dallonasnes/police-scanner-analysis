@@ -43,7 +43,6 @@ object ProcessLiveWebInput {
   val spark = SparkSession.builder().getOrCreate()
   val sc = spark.sparkContext
   val ssc = new StreamingContext(sc, Seconds(2))
-  val json_reader = spark.read
   import spark.implicits._
 
   def main(args: Array[String]) {
@@ -81,7 +80,6 @@ object ProcessLiveWebInput {
     val report = serializedRecords.map(rec => mapper.readValue(rec, classOf[KeyFromLambdaHandler]))
     println(report)
     val batchStats = report.map(k => {
-      println("in the handler!!")
       val key = k.key
       val body = k.body
 
@@ -99,10 +97,6 @@ object ProcessLiveWebInput {
       tmp = tmp.substring(tmp.indexOf('.') + 1, tmp.size)
       val parsedZone = tmp.substring(0, tmp.indexOf('.'))
 
-      println("about to check body status")
-      println("body is: ")
-      println(body)
-
       if (body.isEmpty) {
         // key refers to the key to the s3 bucket storing the actual file
         // but there are two types of jsons we may have to handle - one for web audio input, one for web text input
@@ -110,7 +104,7 @@ object ProcessLiveWebInput {
         // first we parse that from the key
         /*
         val isAudioJson = key.contains("yesAudio")
-        val json_df = json_reader.json("s3://dasnes-mpcs53014/" + key)
+        val json_df = spark.read.json("s3://dasnes-mpcs53014/" + key)
         var text = ""
 
         if (!isAudioJson){
@@ -145,8 +139,7 @@ object ProcessLiveWebInput {
         else season = "fall"
 
         var rowKey = (deptName + zone + tod_str.toString + season.toString).toString
-        println("at rowkey")
-        println(rowKey)
+        println("writing to hbase row: " + rowKey)
 
         // now do inference
         // then can increment score sum too
