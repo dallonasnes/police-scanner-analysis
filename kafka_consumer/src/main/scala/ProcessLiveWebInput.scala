@@ -97,6 +97,33 @@ object ProcessLiveWebInput {
       tmp = tmp.substring(tmp.indexOf('.') + 1, tmp.size)
       val parsedZone = tmp.substring(0, tmp.indexOf('.'))
 
+      val zone = parsedZone
+      val deptName = parsedDept
+      var tod_str = "" // filled below
+      var season = "" // filled below
+
+      val tod = HH
+      if (tod >= 0 && tod < 6) {tod_str = "latenight"}
+      else if (tod >= 6 && tod < 12) {tod_str = "morn"}
+      else if (tod >= 12 && tod < 18) {tod_str = "aftrn"}
+      else {tod_str="night"}
+      //now get the season too
+      val date_region = Month
+      if (date_region <= 3) season = "winter"
+      else if (date_region <= 6) season = "spring"
+      else if (date_region <= 9) season = "summer"
+      else season = "fall"
+
+      var rowKey = (deptName + zone + tod_str.toString + season.toString).toString
+      println("writing to hbase row: " + rowKey)
+
+      table.incrementColumnValue(
+        rowKey.getBytes,
+        "stats".getBytes,
+        "sentiment_score_total".getBytes,
+        1
+      )
+
       if (body.isEmpty) {
         // key refers to the key to the s3 bucket storing the actual file
         // but there are two types of jsons we may have to handle - one for web audio input, one for web text input
@@ -118,28 +145,6 @@ object ProcessLiveWebInput {
 
          */
       } else {
-
-        // commenting out the below lines just while i test reading a new interface
-
-        val zone = parsedZone
-        val deptName = parsedDept
-        var tod_str = "" // filled below
-        var season = "" // filled below
-
-        val tod = HH
-        if (tod >= 0 && tod < 6) {tod_str = "latenight"}
-        else if (tod >= 6 && tod < 12) {tod_str = "morn"}
-        else if (tod >= 12 && tod < 18) {tod_str = "aftrn"}
-        else {tod_str="night"}
-        //now get the season too
-        val date_region = Month
-        if (date_region <= 3) season = "winter"
-        else if (date_region <= 6) season = "spring"
-        else if (date_region <= 9) season = "summer"
-        else season = "fall"
-
-        var rowKey = (deptName + zone + tod_str.toString + season.toString).toString
-        println("writing to hbase row: " + rowKey)
 
         // now do inference
         // then can increment score sum too
@@ -177,13 +182,6 @@ object ProcessLiveWebInput {
               )
             }
         }*/
-
-        table.incrementColumnValue(
-          rowKey.getBytes,
-          "stats".getBytes,
-          "sentiment_score_total".getBytes,
-          1
-        )
 
       }
     })

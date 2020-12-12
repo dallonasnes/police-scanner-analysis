@@ -215,6 +215,13 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 	var duration = (req.body['duration']) ? req.body['duration'] : null;
 	var text = (req.body['text']) ? req.body['text'] : null ;
 
+	// as of now we can't process if any of the required fields are null
+	if (!deptName || !zone || !date || !time || !duration) {
+		// the need for no nulls is now probably a relic of debugging the second spark context exception in spark-submit inference job
+		console.log("sentiment inference in kafka consumer doesn't yet support report with any null fields.");
+		return;
+	}
+
 	var aupKey = buildAupKey(date, time, deptName, zone, req.file);
 
 	var report = {
@@ -228,12 +235,7 @@ app.post('/writeData', upload.single('recording'), function (req, res) {
 		recording: ((req.file) ? true : false) 
 	};
 
-	// as of now we can't process if any of the required fields are null
-	if (!report.id || !report.dept_name || !report.zone || !report.date || !report.time || !report.duration || !report.text){
-		// the need for no nulls is now probably a relic of debugging the second spark context exception in spark-submit inference job
-		console.log("sentiment inference in kafka consumer doesn't yet support report with any null fields.");
-		return;
-	}
+	console.log(report);
 
 	if (!req.file) {
 		s3.putObject({

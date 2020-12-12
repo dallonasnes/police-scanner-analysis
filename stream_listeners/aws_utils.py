@@ -57,7 +57,7 @@ def amazon_transcribe(transcribe, audio_file_name, max_speakers=-1):
     raise ValueError("Maximum detected speakers is 10.")
 
   job_uri = "s3://dasnes-mpcs53014/" + audio_file_name
-  job_name = (audio_file_name.split('.')[0]).replace(" ", "") + str(time.time())
+  job_name = audio_file_name.replace(".mp3", "")#(audio_file_name.split('.')[0]).replace(" ", "") + str(time.time())
   
   # check if name is taken or not
   job_name = check_job_name(transcribe, job_name)

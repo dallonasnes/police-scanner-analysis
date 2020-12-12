@@ -33,7 +33,11 @@ class Audio:
 
     def download_file(self):
         today = datetime.now()
-        self.local_filename = str(today.day) + str(today.month) + str(today.year) + str(today.hour) + str(today.minute) + str(today.second) + "." + self.dept_name + "." + self.zone_name + "." + str(time.time()) + ".mp3"
+        hour = str(today.hour)
+        if len(hour) != 2: hour = '0' + hour
+        minute = str(today.minute)
+        if len(minute) != 2: minute = '0' + minute
+        self.local_filename = str(today.day) + str(today.month) + str(today.year) + hour + minute + "00." + self.dept_name + "." + self.zone_name + "." + str(time.time()) + ".mp3"
         # NOTE the stream=True parameter below
         with requests.get(self.url, stream=True, auth=HTTPBasicAuth(BROADCASTIFY_USERNAME, BROADCASTIFY_PW)) as r:
             #TODO: how to handle request failures here?
@@ -58,9 +62,9 @@ if __name__ == "__main__":
         t = threading.Thread(target=aud.download_file,)
         t.daemon = True
         t.start()
-
+        print(aud.local_filename)
         # wait 60 seconds for the thread to finish its work
-        t.join(60)
+        t.join(10)
         aud.set_event()
         print("uploading file to aws bucket")
         upload_to_aws(aud.local_filename, "dasnes-mpcs53014", aud.local_filename)
