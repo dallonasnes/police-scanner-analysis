@@ -1,3 +1,4 @@
+lambdas/lambda_kafka_produce_on_transcribe_complete/package
 *.jar
 
 *old_deploy.zip
