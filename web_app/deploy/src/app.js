@@ -16,8 +16,8 @@ const {
   StartTranscriptionJobCommand,
 } = require("@aws-sdk/client-transcribe");
 
-const transcriber = new TranscribeClient({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "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"});
-AWS.config.update({region: 'us-east-2', accessKeyId : "AKIA3OT2CZXEDVROT2PF", secretAccessKey : "HVRGs0g6xHKo5viWZrKqPq54IJYB2rwn8m5HP0Db"});
+const transcriber = new TranscribeClient({region: 'us-east-2', accessKeyId : YOURKEY, secretAccessKey : YOURKEY});
+AWS.config.update({region: 'us-east-2', accessKeyId : YOURKEY, secretAccessKey : YOURKEY});
 var s3 = new AWS.S3();
 const multer = require('multer');
 const prefix = 'uploads/';
