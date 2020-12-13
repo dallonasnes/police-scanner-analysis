@@ -9,6 +9,7 @@ It is an implementation of the lambda architecture. Batch layer processing inclu
 Demo video and walkthrough at this link: https://youtu.be/PHhb9FtWUL8
 
 ### How to run on AWS EMR Cluster
+Note: The cluster this was deployed to has since been taken down. The below instructions may be helpful for those wishing to deploy this code on a new cluster.
 
 #### Running deployed code
 Node web app is already deployed to load balanced web servers. You can reach the home page at `http://mpcs53014-loadbalancer-217964685.us-east-2.elb.amazonaws.com:3005`
