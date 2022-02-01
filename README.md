@@ -1,6 +1,4 @@
-# Multiple infinite input stream realtime analysis
-## Big data web app deployed to AWS EMR Cluster
-
+# Real-time sentiment processing on infinite audio streams
 Demo video and walkthrough at this link: https://youtu.be/PHhb9FtWUL8
 
 ### Overview
@@ -12,6 +10,8 @@ It is an implementation of the lambda architecture. Batch layer processing inclu
 Note: The cluster this was deployed to has since been taken down. The below instructions may be helpful for those wishing to deploy this code on a new cluster.
 
 #### Running deployed code
+NB: This is now an archive, the cluster + web app have since been taken down.
+
 Node web app is already deployed to load balanced web servers. You can reach the home page at `http://mpcs53014-loadbalancer-217964685.us-east-2.elb.amazonaws.com:3005`
 
 The node web app allows users to query precomputed analyses of police language and can be filtered by police dept, zone/beat, time of day and time of year. This app demos basic analyses - word count applied to find most and least common words, and a Logistic Regression model inferring sentiment scores from the transcripts of processed recordings.
